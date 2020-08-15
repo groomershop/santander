@@ -1,0 +1,13 @@
+<?php
+/**
+ * @copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ */
+$applicationStatus = $block->getApplicationStatus();
+$applicationId = $applicationStatus->getApplicationId();
+
+echo $applicationStatus->getCmsBlock();
+
+if ($applicationId) {
+    echo __('Credit application number / decision is:') . $applicationId;
+}
+?>

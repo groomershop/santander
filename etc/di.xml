@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!--
+@copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../../../lib/internal/Magento/Framework/ObjectManager/etc/config.xsd">
+    <type name="Magento\ConfigurableProduct\Block\Product\View\Type\Configurable">
+        <plugin name="installments" type="Aurora\Santander\Plugin\Installment" sortOrder="1"/>
+    </type>
+    <type name="Magento\CheckoutAgreements\Model\AgreementsValidator">
+        <plugin name="santander_agreement_validator" type="Aurora\Santander\Plugin\AgreementsValidator" sortOrder="1"/>
+    </type>
+</config>

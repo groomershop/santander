@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+@copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../Store/etc/config.xsd">
+    <default>
+        <payment>
+            <eraty_santander>
+                <active>1</active>
+                <title>eRaty Santander Consumer Bank</title>
+                <order_status>pending_payment</order_status>
+                <instructions>Instruction.</instructions>
+                <payment_action>true</payment_action>
+                <model>Aurora\Santander\Model\Santander</model>
+                <group>santander</group>
+            </eraty_santander>
+        </payment>
+    </default>
+</config>

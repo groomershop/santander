@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+@copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+-->
+<page layout="home-page" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="product.info.main">
+            <container name="santander" htmlTag="div" htmlClass="product-info-price-box" after="adjust-size">
+                <block name="installment_block" template="Aurora_Santander::installment.phtml">
+                    <arguments>
+                        <argument name="installment" xsi:type="object">Aurora\Santander\ViewModel\Installment</argument>
+                        <argument name="rates" xsi:type="object">Aurora\Santander\ViewModel\Rates</argument>
+                    </arguments>
+                </block>
+            </container>
+        </referenceContainer>
+        <move element="product.info.price" destination="santander" before="-"/>
+    </body>
+</page>
