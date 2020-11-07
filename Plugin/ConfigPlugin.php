@@ -92,32 +92,35 @@ class ConfigPlugin
 
             $this->entityTypeId = $this->eavConfig->getEntityType(\Magento\Catalog\Model\Product::ENTITY)->getEntityTypeId();
             $groups = $subject->getData('groups');
-            $newConfig = $groups['eraty_santander']['fields']['ranges']['value'];
-            $attribute = $this->attributeRepositoryInterface->get(
-                \Magento\Catalog\Model\Product::ENTITY,
-                \Aurora\Santander\Model\Santander::ATTRIBUTE_CODE
-            );
-
-            foreach ($newConfig as $key => $value) {
-                if (isset($value['qty']) && isset($value['percent'])) {
-                    $newLabel = $value['qty'] . ' x ' . $value['percent'] . '%';
-                    if (array_key_exists($key, $oldConfig)) {
-                        $oldLabel = $oldConfig[$key]['qty'] . ' x ' . $oldConfig[$key]['percent'] . '%';
-                        $options = $this->getOptions($attribute);
-                        $this->updateOption($attribute, $options, $oldLabel, $newLabel);
-                    } else {
-                        $this->addOption($newLabel);
+            if (array_key_exists('ranges', $groups['eraty_santander']['fields'])) {
+                $newConfig = $groups['eraty_santander']['fields']['ranges']['value'];
+                $attribute = $this->attributeRepositoryInterface->get(
+                    \Magento\Catalog\Model\Product::ENTITY,
+                    \Aurora\Santander\Model\Santander::ATTRIBUTE_CODE
+                );
+    
+                foreach ($newConfig as $key => $value) {
+                    if (isset($value['qty']) && isset($value['percent'])) {
+                        $newLabel = $value['qty'] . ' x ' . $value['percent'] . '%';
+                        if (array_key_exists($key, $oldConfig)) {
+                            $oldLabel = $oldConfig[$key]['qty'] . ' x ' . $oldConfig[$key]['percent'] . '%';
+                            $options = $this->getOptions($attribute);
+                            $this->updateOption($attribute, $options, $oldLabel, $newLabel);
+                        } else {
+                            $this->addOption($newLabel);
+                        }
+                    }
+                }
+    
+                foreach ($oldConfig as $key => $value) {
+                    if (!array_key_exists($key, $newConfig)) {
+                        $label = $value['qty'] . ' x ' . $value['percent'] . '%';
+                        $this->deleteOption($attribute, $label);
                     }
                 }
             }
-
-            foreach ($oldConfig as $key => $value) {
-                if (!array_key_exists($key, $newConfig)) {
-                    $label = $value['qty'] . ' x ' . $value['percent'] . '%';
-                    $this->deleteOption($attribute, $label);
-                }
-            }
         }
+            
         return $proceed();
     }
 
