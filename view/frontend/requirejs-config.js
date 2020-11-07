@@ -7,9 +7,6 @@ var config = {
         mixins: {
             'Magento_CheckoutAgreements/js/view/checkout-agreements': {
                 'Aurora_Santander/js/view/checkout-agreements-mixin': true
-            },
-            'Magento_Catalog/js/price-box': {
-                'Aurora_Santander/js/pricebox': true
             }
         }
     }
