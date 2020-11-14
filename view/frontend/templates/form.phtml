@@ -50,7 +50,7 @@ $currencyCode = $order->getOrderCurrencyCode();
 
         <input type="hidden" name="numerSklepu" value="<?= $ratesModel->getShopId($order->getAllItems()) ?>">
         <input type="hidden" name="typProduktu" value="0">
-        <input type="hidden" name="sposobDostarczeniaTowaru" value="<?= $order->getShippingDescription() ?>">
+        <input type="hidden" name="sposobDostarczeniaTowaru" value="<?= ($order->getShippingDescription() != '' ? $order->getShippingDescription() : 'Przesyłka kurierska') ?>">
         <input type="hidden" name="nrZamowieniaSklep" value="<?= $order->getIncrementId() ?>">
         <input type="hidden" name="imie" value="<?= $billingAddress->getFirstname() ?>">
         <input type="hidden" name="nazwisko" value="<?= $billingAddress->getLastname() ?>">
