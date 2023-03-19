@@ -1,43 +1,54 @@
 <?php
+
 /**
- * @copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
+
+declare(strict_types=1);
+
 namespace Aurora\Santander\ViewModel;
+
+use Magento\Checkout\Model\Session;
+use Magento\Sales\Model\Order as Order;
+use Magento\Framework\App\RequestInterface;
+use Magento\Cms\Api\BlockRepositoryInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\View\Element\Block\ArgumentInterface;
 
 /**
  * ApplicationStatus
  */
-class ApplicationStatus implements \Magento\Framework\View\Element\Block\ArgumentInterface
+class ApplicationStatus implements ArgumentInterface
 {
     /**
-     * @var \Magento\Checkout\Model\Session
+     * @var Session
      */
     protected $checkoutSession;
 
     /**
-     * @var \Magento\Framework\App\RequestInterface
+     * @var RequestInterface
      */
     protected $request;
 
     /**
-     * @var \Magento\Cms\Api\BlockRepositoryInterface
+     * @var BlockRepositoryInterface
      */
     protected $blockRepository;
 
     /**
-     * @var \Magento\Sales\Model\Order
+     * @var Order
      */
     public $order;
 
     /**
-     * @param \Magento\Checkout\Model\Session $checkoutSession
-     * @param \Magento\Framework\App\RequestInterface $request
-     * @param \Magento\Cms\Api\BlockRepositoryInterface $blockRepository
+     * @param Session $checkoutSession
+     * @param RequestInterface $request
+     * @param BlockRepositoryInterface $blockRepository
      */
     public function __construct(
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Framework\App\RequestInterface $request,
-        \Magento\Cms\Api\BlockRepositoryInterface $blockRepository
+        Session $checkoutSession,
+        RequestInterface $request,
+        BlockRepositoryInterface $blockRepository
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->request = $request;
@@ -46,12 +57,13 @@ class ApplicationStatus implements \Magento\Framework\View\Element\Block\Argumen
 
     /**
      * Get last order id from session
-     * @return integer
+     * @return void
      */
     private function getLastOrder()
     {
         $this->order = $this->checkoutSession->getLastRealOrder();
     }
+
     /**
      * Check is Santander method selected
      * @return boolean
@@ -65,6 +77,7 @@ class ApplicationStatus implements \Magento\Framework\View\Element\Block\Argumen
 
         return false;
     }
+
     /**
      * Get Santander CMS block
      * @return string
@@ -73,9 +86,9 @@ class ApplicationStatus implements \Magento\Framework\View\Element\Block\Argumen
     {
         if ($this->isSantanderPayment() && $this->hasValidParams()) {
             try {
-                $blockId = ($this->request->getParam('result') == 1) ? 'eraty_success' : 'eraty_failure' ;
+                $blockId = ($this->request->getParam('result') == 1) ? 'eraty_success' : 'eraty_failure';
                 $block = $this->blockRepository->getById($blockId);
-            } catch (\Magento\Framework\Exception\LocalizedException $exception) {
+            } catch (LocalizedException $exception) {
                 return '';
             }
 

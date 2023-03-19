@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+-->
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="Santander">
+        <job name="aurora_santander_update_status" instance="Aurora\Santander\Cron\UpdateStatus" method="execute">
+            <schedule>* * * * *</schedule>
+        </job>
+    </group>
+</config>

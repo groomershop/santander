@@ -1,10 +1,18 @@
 <?php
+
 /**
- * @copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
+
+declare(strict_types=1);
+
 namespace Aurora\Santander\Setup\Patch\Data;
 
+use Magento\Cms\Api\BlockRepositoryInterface;
+use Magento\Cms\Api\Data\BlockInterfaceFactory;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
+use Magento\Framework\Setup\ModuleDataSetupInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Setup\Patch\PatchRevertableInterface;
 
 /**
@@ -13,27 +21,29 @@ use Magento\Framework\Setup\Patch\PatchRevertableInterface;
 class CmsBlocks implements DataPatchInterface, PatchRevertableInterface
 {
     /**
-     * @var \Magento\Framework\Setup\ModuleDataSetupInterface
+     * @var ModuleDataSetupInterface
      */
     private $moduleDataSetup;
+
     /**
-     * @var \Magento\Cms\Api\BlockRepositoryInterface
+     * @var BlockRepositoryInterface
      */
     private $blockRepository;
+
     /**
-     * @var \Magento\Cms\Api\Data\BlockInterfaceFactory
+     * @var BlockInterfaceFactory
      */
     private $blockFactory;
 
     /**
-     * @param \Magento\Framework\Setup\ModuleDataSetupInterface $moduleDataSetup
-     * @param \Magento\Cms\Api\BlockRepositoryInterface $blockRepository
-     * @param \Magento\Cms\Api\Data\BlockInterfaceFactory $blockFactory
+     * @param ModuleDataSetupInterface $moduleDataSetup
+     * @param BlockRepositoryInterface $blockRepository
+     * @param BlockInterfaceFactory $blockFactory
      */
     public function __construct(
-        \Magento\Framework\Setup\ModuleDataSetupInterface $moduleDataSetup,
-        \Magento\Cms\Api\BlockRepositoryInterface $blockRepository,
-        \Magento\Cms\Api\Data\BlockInterfaceFactory $blockFactory
+        ModuleDataSetupInterface $moduleDataSetup,
+        BlockRepositoryInterface $blockRepository,
+        BlockInterfaceFactory $blockFactory
     ) {
         $this->moduleDataSetup = $moduleDataSetup;
         $this->blockRepository = $blockRepository;
@@ -58,7 +68,7 @@ class CmsBlocks implements DataPatchInterface, PatchRevertableInterface
     {
         return [
             'eraty_success' => __('Santander application accepted'),
-            'eraty_failure' => __('Santander application rejected')
+            'eraty_failure' => __('Santander application rejected'),
         ];
     }
 
@@ -71,7 +81,7 @@ class CmsBlocks implements DataPatchInterface, PatchRevertableInterface
         foreach ($this->getBlocks() as $key => $title) {
             try {
                 $this->blockRepository->getById($key);
-            } catch (\Magento\Framework\Exception\NoSuchEntityException $exception) {
+            } catch (NoSuchEntityException $exception) {
                 $block = $this->blockFactory->create();
                 $block->setIdentifier($key);
                 $block->setTitle($title);
@@ -80,6 +90,7 @@ class CmsBlocks implements DataPatchInterface, PatchRevertableInterface
             }
         }
     }
+
     /**
      * Delete CMS blocks
      * @return void
@@ -90,6 +101,7 @@ class CmsBlocks implements DataPatchInterface, PatchRevertableInterface
             $this->blockRepository->deleteById($key);
         }
     }
+
     /**
      * Revert data patch
      * @return void

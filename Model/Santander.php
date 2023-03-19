@@ -1,43 +1,50 @@
 <?php
+
 /**
- * @copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
+
+declare(strict_types=1);
+
 namespace Aurora\Santander\Model;
 
-/**
- * Class Santander
- */
-class Santander extends \Magento\Payment\Model\Method\AbstractMethod
+use Magento\Payment\Block\Info\Instructions;
+use Magento\Payment\Model\Method\AbstractMethod;
+use Magento\Santander\Block\Form\Santander as MagentoSantander;
+
+class Santander extends AbstractMethod
 {
-    const ATTRIBUTE_CODE = 'santander_installment';
-    const PAYMENT_METHOD_CODE = 'eraty_santander';
-    const MIN_ORDER_TOTAL = 'min_order_total';
-    const MAX_ORDER_TOTAL = 'max_order_total';
+    public const ATTRIBUTE_CODE = 'santander_installment';
+
+    public const PAYMENT_METHOD_CODE = 'eraty_santander';
+
+    public const MIN_ORDER_TOTAL = 'min_order_total';
+
+    public const MAX_ORDER_TOTAL = 'max_order_total';
 
     /**
-     * Payment code
      * @var string
      */
     protected $_code = self::PAYMENT_METHOD_CODE;
 
     /**
-     * eRaty Santander payment block paths
      * @var string
      */
-    protected $_formBlockType = \Magento\Santander\Block\Form\Santander::class;
+    protected $_formBlockType = MagentoSantander::class;
 
     /**
-     * Instructions block path
      * @var string
      */
-    protected $_infoBlockType = \Magento\Payment\Block\Info\Instructions::class;
+    protected $_infoBlockType = Instructions::class;
+
     /**
-     * Availability option
      * @var bool
      */
     protected $_isOffline = true;
+
     /**
      * Get instructions text from config
+     *
      * @return string
      */
     public function getInstructions()

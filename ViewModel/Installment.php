@@ -1,51 +1,70 @@
 <?php
+
 /**
- * @copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
+
+declare(strict_types=1);
+
 namespace Aurora\Santander\ViewModel;
+
+use Exception;
+use Psr\Log\LoggerInterface;
+
+use Magento\Framework\Registry;
+use Magento\Checkout\Helper\Cart;
+use Magento\Catalog\Model\Product;
+use Magento\Framework\Pricing\Helper\Data;
+use Magento\Directory\Model\CurrencyFactory;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Framework\View\Element\Block\ArgumentInterface;
+
+use Aurora\Santander\Model\Santander;
+use Aurora\Santander\Helper\Data as AuroraData;
 
 /**
  * Installment
  */
-class Installment implements \Magento\Framework\View\Element\Block\ArgumentInterface
+class Installment implements ArgumentInterface
 {
     const MIN_PRODUCT_PRICE = 'santander_configuration/calc_button_configuration/min_product_price';
     const MAX_PRODUCT_PRICE = 'santander_configuration/calc_button_configuration/max_product_price';
     const MIN_ORDER_TOTAL = 'payment/eraty_santander/min_order_total';
     const MAX_ORDER_TOTAL = 'payment/eraty_santander/max_order_total';
-    
+
     /**
-     * @var \Magento\Framework\Registry
+     * @var Registry
      */
     protected $registry;
 
     /**
-     * @var \Magento\Framework\Pricing\Helper\Data
+     * @var Data
      */
     protected $priceHelper;
 
     /**
-     * @var \Aurora\Santander\Helper\Data
+     * @var AuroraData
      */
     protected $dataHelper;
 
     /**
-     * @var \Magento\Checkout\Helper\Cart
+     * @var Cart
      */
     protected $cart;
 
     /**
-     * @var \Magento\Catalog\Api\ProductRepositoryInterface
+     * @var ProductRepositoryInterface
      */
     protected $productRepository;
 
     /**
-     * @var \Magento\Directory\Model\CurrencyFactory
+     * @var CurrencyFactory
      */
     protected $currencyFactory;
 
     /**
-     * @var \Magento\Store\Model\StoreManagerInterface
+     * @var StoreManagerInterface
      */
     protected $storeManager;
 
@@ -58,30 +77,36 @@ class Installment implements \Magento\Framework\View\Element\Block\ArgumentInter
      * @var float
      */
     public $percent;
-    
+
     /**
      * @var float
      */
     public $price;
 
-   /**
-     * @param \Magento\Framework\Registry $registry
-     * @param \Magento\Framework\Pricing\Helper\Data $priceHelper
-     * @param \Aurora\Santander\Helper\Data $dataHelper,
-     * @param \Magento\Checkout\Helper\Cart $cart,
-     * @param \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
-     * @param \Magento\Directory\Model\CurrencyFactory $currencyFactory,
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
+    /**
+     * @var LoggerInterface
+     */
+    public LoggerInterface $logger;
+
+    /**
+     * @param Registry $registry
+     * @param Data $priceHelper
+     * @param AuroraData $dataHelper ,
+     * @param Cart $cart ,
+     * @param ProductRepositoryInterface $productRepository ,
+     * @param CurrencyFactory $currencyFactory ,
+     * @param StoreManagerInterface $storeManager
+     * @param LoggerInterface $logger
      */
     public function __construct(
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\Pricing\Helper\Data $priceHelper,
-        \Aurora\Santander\Helper\Data $dataHelper,
-        \Magento\Checkout\Helper\Cart $cart,
-        \Magento\Catalog\Api\ProductRepositoryInterface $productRepository,
-        \Magento\Directory\Model\CurrencyFactory $currencyFactory,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Psr\Log\LoggerInterface $logger
+        Registry $registry,
+        Data $priceHelper,
+        AuroraData $dataHelper,
+        Cart $cart,
+        ProductRepositoryInterface $productRepository,
+        CurrencyFactory $currencyFactory,
+        StoreManagerInterface $storeManager,
+        LoggerInterface $logger
     ) {
         $this->registry = $registry;
         $this->priceHelper = $priceHelper;
@@ -95,7 +120,8 @@ class Installment implements \Magento\Framework\View\Element\Block\ArgumentInter
 
     /**
      * Get product model
-     * @return \Magento\Catalog\Model\Product
+     *
+     * @return Product
      */
     public function getProduct()
     {
@@ -103,8 +129,10 @@ class Installment implements \Magento\Framework\View\Element\Block\ArgumentInter
     }
 
     /**
-     * Calculate installment qty and value
-     * @param \Magento\Catalog\Model\Product $product
+     * Calculate installment qty and value.
+     *
+     * @param Product $product
+     *
      * @return void
      */
     public function calculateInstallment($product)
@@ -112,28 +140,34 @@ class Installment implements \Magento\Framework\View\Element\Block\ArgumentInter
         $this->qty = null;
         $this->percent = null;
         $this->price = $product->getFinalPrice();
-        $attribute = $product->getResource()->getAttribute(\Aurora\Santander\Model\Santander::ATTRIBUTE_CODE);
+        $attribute = $product->getResource()->getAttribute(Santander::ATTRIBUTE_CODE);
 
-        if ($attribute) {
-            $label = $attribute->getFrontend()->getValue($product);
+        if (!$attribute) {
+            return;
+        }
 
+        $label = $attribute->getFrontend()->getValue($product);
+
+        if ($label) {
             preg_match('/(\d+)\s*x\s*(.*)\s*\%/', $label, $matches, PREG_OFFSET_CAPTURE);
+        }
 
-            if (isset($matches[1][0]) && isset($matches[2][0])) {
-                $this->qty = (int)$matches[1][0];
-                $this->percent = (float)$matches[2][0];
-            }
+        if (isset($matches[1][0]) && isset($matches[2][0])) {
+            $this->qty = (int)$matches[1][0];
+            $this->percent = (float)$matches[2][0];
         }
     }
 
     /**
      * Get unit installment price
+     *
      * @return float
      */
     public function getPrice()
     {
         if ($this->percent > 0) {
-            return $this->priceHelper->currency(($this->price * (1 + ($this->percent/100))) / $this->qty, true, false);
+            return $this->priceHelper->currency(($this->price * (1 + ($this->percent / 100))) / $this->qty, true,
+                false);
         }
 
         return $this->priceHelper->currency($this->price / $this->qty, true, false);
@@ -141,23 +175,27 @@ class Installment implements \Magento\Framework\View\Element\Block\ArgumentInter
 
     /**
      * @param $price
+     *
      * @return boolean
      */
     public function isAvailable($price = null)
     {
         $minProductPrice = $this->dataHelper->getConfigValue(self::MIN_PRODUCT_PRICE);
         $maxProductPrice = $this->dataHelper->getConfigValue(self::MAX_PRODUCT_PRICE);
+
         return $this->checkPrices($price, $minProductPrice, $maxProductPrice);
     }
 
     /**
      * @param $price
+     *
      * @return boolean
      */
     public function isAvailableInCart($price = null)
     {
         $minProductPrice = $this->dataHelper->getConfigValue(self::MIN_ORDER_TOTAL);
         $maxProductPrice = $this->dataHelper->getConfigValue(self::MAX_ORDER_TOTAL);
+
         return $this->checkPrices($price, $minProductPrice, $maxProductPrice);
     }
 
@@ -165,6 +203,7 @@ class Installment implements \Magento\Framework\View\Element\Block\ArgumentInter
      * @param $price
      * @param $minProductPrice
      * @param $maxProductPrice
+     *
      * @return boolean
      */
     public function checkPrices($price, $minProductPrice, $maxProductPrice)
@@ -195,7 +234,8 @@ class Installment implements \Magento\Framework\View\Element\Block\ArgumentInter
             }
         }
         $shippingPrice = $this->cart->getQuote()->getShippingAddress()->getShippingAmount();
-        return $finalPrice + $shippingPrice;  
+
+        return $finalPrice + $shippingPrice;
     }
 
     /**
@@ -204,11 +244,13 @@ class Installment implements \Magento\Framework\View\Element\Block\ArgumentInter
     public function getCartProducts()
     {
         $products = $this->cart->getQuote()->getItems();
-        return $products;  
+
+        return $products;
     }
 
     /**
      * @param $price
+     *
      * @return int
      */
     public function toPLN($price)
@@ -221,10 +263,10 @@ class Installment implements \Magento\Framework\View\Element\Block\ArgumentInter
             if (in_array('PLN', $avaiableCurrencies)) {
                 $price = $currency->convert($price, 'PLN');
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->critical($e->getMessage());
         }
+
         return $price;
     }
-
 }

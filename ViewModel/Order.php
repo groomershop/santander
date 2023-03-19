@@ -1,66 +1,85 @@
 <?php
+
 /**
- * @copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
+
+declare(strict_types=1);
+
 namespace Aurora\Santander\ViewModel;
+
+use Exception;
+use InvalidArgumentException;
+
+use Magento\Checkout\Model\Session;
+use Magento\Framework\UrlInterface;
+use Magento\Sales\Model\OrderFactory;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Directory\Model\CurrencyFactory;
+use Magento\Sales\Model\Order as MagentoOrder;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Framework\Serialize\SerializerInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\View\Element\Block\ArgumentInterface;
 
 /**
  * Order
  */
-class Order implements \Magento\Framework\View\Element\Block\ArgumentInterface
+class Order implements ArgumentInterface
 {
     /**
-     * @var \Magento\Checkout\Model\Session
+     * @var Session
      */
     protected $_checkoutSession;
 
     /**
-     * @var \Magento\Sales\Model\OrderFactory
+     * @var OrderFactory
      */
     protected $orderFactory;
 
     /**
-     * @var \Magento\Framework\UrlInterface
+     * @var UrlInterface
      */
     protected $urlBuilder;
 
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     * @var ScopeConfigInterface
      */
     protected $scopeConfig;
 
     /**
-     * @var \Magento\Framework\Serialize\SerializerInterface
+     * @var SerializerInterface
      */
     protected $serializer;
 
     /**
-     * @var \Magento\Store\Model\StoreManagerInterface
+     * @var StoreManagerInterface
      */
     protected $storeManager;
 
     /**
-     * @var \Magento\Directory\Model\CurrencyFactory
+     * @var CurrencyFactory
      */
     protected $currencyFactory;
 
     /**
-     * @param \Magento\Checkout\Model\Session $_checkoutSession
-     * @param \Magento\Sales\Model\OrderFactory $orderFactory
-     * @param \Magento\Framework\UrlInterface $urlBuilder
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-     * @param \Magento\Framework\Serialize\SerializerInterface $serializer
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
-     * @param \Magento\Directory\Model\CurrencyFactory $currencyFactory
+     * @param Session $_checkoutSession
+     * @param OrderFactory $orderFactory
+     * @param UrlInterface $urlBuilder
+     * @param ScopeConfigInterface $scopeConfig
+     * @param SerializerInterface $serializer
+     * @param StoreManagerInterface $storeManager
+     * @param CurrencyFactory $currencyFactory
      */
     public function __construct(
-        \Magento\Checkout\Model\Session $_checkoutSession,
-        \Magento\Sales\Model\OrderFactory $orderFactory,
-        \Magento\Framework\UrlInterface $urlBuilder,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Framework\Serialize\SerializerInterface $serializer,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Directory\Model\CurrencyFactory $currencyFactory
+        Session $_checkoutSession,
+        OrderFactory $orderFactory,
+        UrlInterface $urlBuilder,
+        ScopeConfigInterface $scopeConfig,
+        SerializerInterface $serializer,
+        StoreManagerInterface $storeManager,
+        CurrencyFactory $currencyFactory
     ) {
         $this->_checkoutSession = $_checkoutSession;
         $this->orderFactory = $orderFactory;
@@ -73,7 +92,7 @@ class Order implements \Magento\Framework\View\Element\Block\ArgumentInterface
 
     /**
      * Get last order id from session
-     * @return \Magento\Sales\Model\Order
+     * @return MagentoOrder
      */
     public function getLastOrder()
     {
@@ -90,6 +109,11 @@ class Order implements \Magento\Framework\View\Element\Block\ArgumentInterface
         return $this->urlBuilder->getUrl('checkout/onepage/success', $params);
     }
 
+    public function getSaveOrderPageUrl($params)
+    {
+        return $this->urlBuilder->getUrl('santander/eraty/saveorder', $params);
+    }
+
     /**
      * Get installment ranges from config table
      * @return array|null
@@ -98,13 +122,13 @@ class Order implements \Magento\Framework\View\Element\Block\ArgumentInterface
     {
         $rates = $this->scopeConfig->getValue(
             'payment/eraty_santander/ranges',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            ScopeInterface::SCOPE_STORE,
             $this->storeManager->getStore()->getId()
         );
 
         try {
             return $this->serializer->unserialize($rates);
-        } catch (\InvalidArgumentException $exception) {
+        } catch (InvalidArgumentException $exception) {
             return null;
         }
     }
@@ -118,9 +142,9 @@ class Order implements \Magento\Framework\View\Element\Block\ArgumentInterface
             if (in_array('PLN', $avaiableCurrencies)) {
                 $price = $currency->convert($price, 'PLN');
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
         }
-        
+
         return $price;
     }
 }

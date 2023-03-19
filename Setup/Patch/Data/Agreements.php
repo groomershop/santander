@@ -1,11 +1,21 @@
 <?php
+
 /**
- * @copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
+
+declare(strict_types=1);
+
 namespace Aurora\Santander\Setup\Patch\Data;
 
+use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
+use Magento\Framework\Setup\ModuleDataSetupInterface;
+use Magento\CheckoutAgreements\Model\AgreementFactory;
 use Magento\Framework\Setup\Patch\PatchRevertableInterface;
+use Magento\CheckoutAgreements\Model\CheckoutAgreementsRepository;
+
+use Aurora\Santander\Helper\Data;
 
 /**
  * Agreements
@@ -15,43 +25,43 @@ class Agreements implements DataPatchInterface, PatchRevertableInterface
     const SANTANDER_AGREEMENT_ID = 'santander_configuration/agreement_configuration/santander_agreement';
 
     /**
-     * @var \Magento\CheckoutAgreements\Model\AgreementFactory
+     * @var AgreementFactory
      */
     protected $agreementFactory;
 
     /**
-     * @var \Magento\Framework\App\ResourceConnection
+     * @var ResourceConnection
      */
     protected $resourceConnection;
 
     /**
-     * @var \Aurora\Santander\Helper\Data
+     * @var Data
      */
     protected $dataHelper;
 
     /**
-     * @var \Magento\CheckoutAgreements\Model\CheckoutAgreementsRepository
+     * @var CheckoutAgreementsRepository
      */
     protected $checkoutAgreementsRepository;
 
     /**
-     * @var \Magento\Framework\Setup\ModuleDataSetupInterface
+     * @var ModuleDataSetupInterface
      */
     protected $moduleDataSetup;
-    
+
     /**
-     * @param \Magento\CheckoutAgreements\Model\AgreementFactory $agreementFactory
-     * @param \Magento\Framework\App\ResourceConnection $resourceConnection
-     * @param \Aurora\Santander\Helper\Data $dataHelper
-     * @param \Magento\CheckoutAgreements\Model\CheckoutAgreementsRepository $checkoutAgreementsRepository
-     * @param \Magento\Framework\Setup\ModuleDataSetupInterface $moduleDataSetup
+     * @param AgreementFactory $agreementFactory
+     * @param ResourceConnection $resourceConnection
+     * @param Data $dataHelper
+     * @param CheckoutAgreementsRepository $checkoutAgreementsRepository
+     * @param ModuleDataSetupInterface $moduleDataSetup
      */
     public function __construct(
-        \Magento\CheckoutAgreements\Model\AgreementFactory $agreementFactory, 
-        \Magento\Framework\App\ResourceConnection $resourceConnection,
-        \Aurora\Santander\Helper\Data $dataHelper,
-        \Magento\CheckoutAgreements\Model\CheckoutAgreementsRepository $checkoutAgreementsRepository,
-        \Magento\Framework\Setup\ModuleDataSetupInterface $moduleDataSetup
+        AgreementFactory $agreementFactory,
+        ResourceConnection $resourceConnection,
+        Data $dataHelper,
+        CheckoutAgreementsRepository $checkoutAgreementsRepository,
+        ModuleDataSetupInterface $moduleDataSetup
     ) {
         $this->agreementFactory = $agreementFactory;
         $this->resourceConnection = $resourceConnection;
@@ -76,8 +86,8 @@ class Agreements implements DataPatchInterface, PatchRevertableInterface
                 eRaty Santander Consumer Bank'),
                 'is_active' => '1',
                 'is_html' => '1',
-                'mode' => '1'
-            ]
+                'mode' => '1',
+            ],
         ];
 
         $agreement = $this->agreementFactory->create();

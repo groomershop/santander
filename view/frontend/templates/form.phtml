@@ -1,72 +1,118 @@
 <?php
 /**
- * @copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2023 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
+?>
 
+<?php
+use Aurora\Santander\ViewModel\Order;
+use Aurora\Santander\ViewModel\Rates;
+use Aurora\Santander\Block\Form\Santander;
+use Magento\Framework\Pricing\Helper\Data as PricingHelper;
+
+?>
+
+<?php
+/** @var Santander $block */
+/** @var Order $orderModel */
+/** @var Rates $ratesModel */
+/** @var PricingHelper $priceHelper */
+?>
+
+<?php
 $orderModel = $block->getOrder();
 $ratesModel = $block->getRates();
+$priceHelper = $this->helper(PricingHelper::class);
 
 $order = $orderModel->getLastOrder();
 $billingAddress = $order->getBillingAddress();
-$priceHelper = $this->helper('\Magento\Framework\Pricing\Helper\Data');
 
 $totalValue = 0;
 $totalQty = 0;
 $count = 0;
 $currencyCode = $order->getOrderCurrencyCode();
+
+if (!$order->getId()) {
+    return;
+}
 ?>
 
-<?php if ($order->getId() !== null) : ?>
-    <form id="eraty-form" name="formularz_eRaty" action="https://wniosek.eraty.pl/formularz/" method="post">
-        
-        <?php foreach ($order->getAllItems() as $key => $item) : ?>
-            <?php
-                $count ++;
-                $totalValue += $item->getQtyOrdered() * $item->getPriceInclTax();
-                $totalQty += $item->getQtyOrdered();
-            ?>
-            <input name="idTowaru<?= $count ?>" readonly="readonly" type="hidden" value="<?= $item->getProductId() ?>">
-            <input name="nazwaTowaru<?= $count ?>" readonly="readonly" type="hidden" value="<?= $item->getName() ?>">
-            <input name="wartoscTowaru<?= $count ?>" readonly="readonly" type="hidden" value="<?= $orderModel->getPricePLN($item->getPriceInclTax(), $currencyCode)  ?>">
-            <input name="liczbaSztukTowaru<?= $count ?>" readonly="readonly" type="hidden" value="<?= (int) $item->getQtyOrdered() ?>">
-            <input name="jednostkaTowaru<?= $count ?>" readonly="readonly" type="hidden" value="szt.">
-        <?php endforeach; ?>
+<form id="eraty-form" name="formularz_eRaty" action="https://wniosek.eraty.pl/formularz/" method="post">
+    <?php foreach ($order->getAllItems() as $key => $item): ?>
+        <?php
+        $qty = $item->getQtyOrdered();
+        $discount = $item->getDiscountAmount() ?? 0;
 
-        <?php if ($order->getShippingInclTax() > 0) : ?>
-            <?php
-                $totalValue += $order->getShippingInclTax();
-                $totalQty ++;
-                $count ++;
-            ?>
-            <input name="idTowaru<?= $count ?>" readonly="readonly" type="hidden" value="KosztPrzesylki">
-            <input name="nazwaTowaru<?= $count ?>" readonly="readonly" type="hidden" value="Koszt Przesyłki">
-            <input name="wartoscTowaru<?= $count ?>" readonly="readonly" type="hidden" value="<?= $orderModel->getPricePLN($order->getShippingInclTax(), $currencyCode) ?>">
-            <input name="liczbaSztukTowaru<?= $count ?>" readonly="readonly" type="hidden" value="1">
-            <input name="jednostkaTowaru<?= $count ?>" readonly="readonly" type="hidden" value="sztuki">
-        <?php endif; ?>
+        $price = $block->calculateItemPrice($item);
+        $displayPrice = $orderModel->getPricePLN($price, $currencyCode);
 
-        <input type="hidden" name="wartoscTowarow" value="<?= $orderModel->getPricePLN($totalValue, $currencyCode) ?>">
-        <input type="hidden" name="liczbaSztukTowarow" value="<?= $totalQty ?>">
+        $count++;
+        $totalValue += $price;
+        $totalQty += $qty;
+        ?>
 
-        <input type="hidden" name="numerSklepu" value="<?= $ratesModel->getShopId($order->getAllItems()) ?>">
-        <input type="hidden" name="typProduktu" value="0">
-        <input type="hidden" name="sposobDostarczeniaTowaru" value="<?= ($order->getShippingDescription() != '' ? $order->getShippingDescription() : 'Przesyłka kurierska') ?>">
-        <input type="hidden" name="nrZamowieniaSklep" value="<?= $order->getIncrementId() ?>">
-        <input type="hidden" name="imie" value="<?= $billingAddress->getFirstname() ?>">
-        <input type="hidden" name="nazwisko" value="<?= $billingAddress->getLastname() ?>">
-        <input type="hidden" name="email" value="<?= $billingAddress->getEmail() ?>">
-        <input type="hidden" name="telKontakt" value="<?= $billingAddress->getTelephone() ?>">
-        <input type="hidden" name="ulica" value="<?= implode(' ', $billingAddress->getStreet()) ?>">
-        <input type="hidden" name="miasto" value="<?= $billingAddress->getCity() ?>">
-        <input type="hidden" name="kodPocz" value="<?= $billingAddress->getPostcode() ?>">
-        <input type="hidden" name="char" value="UTF">
-        <input type="hidden" name="wniosekZapisany"  value="<?= $orderModel->getSuccessPageUrl(['order' => $order->getId(), 'result' => 1]) ?>?">
-        <input type="hidden" name="wniosekAnulowany" value="<?= $orderModel->getSuccessPageUrl(['order' => $order->getId(), 'result' => 0]) ?>?">
-    </form>
-<?php endif; ?>
+        <input name="idTowaru<?= $count ?>" readonly="readonly" type="hidden" value="<?= $item->getProductId() ?>"/>
+        <input name="nazwaTowaru<?= $count ?>" readonly="readonly" type="hidden" value="<?= $item->getName() ?>"/>
+        <input name="wartoscTowaru<?= $count ?>"
+               readonly="readonly"
+               type="hidden"
+               value="<?= $displayPrice ?>"
+        />
+        <input name="liczbaSztukTowaru<?= $count ?>"
+               readonly="readonly"
+               type="hidden"
+               value="<?= (int)$qty ?>"
+        />
+        <input name="jednostkaTowaru<?= $count ?>" readonly="readonly" type="hidden" value="szt."/>
+    <?php endforeach; ?>
+
+    <?php if ($order->getShippingInclTax() > 0): ?>
+        <?php
+        $totalValue += $order->getShippingInclTax();
+        $totalQty++;
+        $count++;
+        ?>
+        <input name="idTowaru<?= $count ?>" readonly="readonly" type="hidden" value="KosztPrzesylki">
+        <input name="nazwaTowaru<?= $count ?>" readonly="readonly" type="hidden" value="Koszt Przesyłki">
+        <input name="wartoscTowaru<?= $count ?>"
+               readonly="readonly"
+               type="hidden"
+               value="<?= $orderModel->getPricePLN($order->getShippingInclTax(), $currencyCode) ?>"
+        />
+        <input name="liczbaSztukTowaru<?= $count ?>" readonly="readonly" type="hidden" value="1">
+        <input name="jednostkaTowaru<?= $count ?>" readonly="readonly" type="hidden" value="sztuki">
+    <?php endif ?>
+
+    <input type="hidden" name="wartoscTowarow" value="<?= $orderModel->getPricePLN($totalValue, $currencyCode) ?>">
+    <input type="hidden" name="liczbaSztukTowarow" value="<?= $totalQty ?>">
+    <input type="hidden" name="numerSklepu" value="<?= $ratesModel->getShopId($order->getAllItems()) ?>">
+    <input type="hidden" name="typProduktu" value="0">
+    <input type="hidden" name="sposobDostarczeniaTowaru" value="<?= $order->getShippingDescription() ?>">
+    <input type="hidden" name="nrZamowieniaSklep" value="<?= $order->getIncrementId() ?>">
+    <input type="hidden" name="imie" value="<?= $billingAddress->getFirstname() ?>">
+    <input type="hidden" name="nazwisko" value="<?= $billingAddress->getLastname() ?>">
+    <input type="hidden" name="email" value="<?= $billingAddress->getEmail() ?>">
+    <input type="hidden" name="telKontakt" value="<?= $billingAddress->getTelephone() ?>">
+    <input type="hidden" name="ulica" value="<?= implode(' ', $billingAddress->getStreet()) ?>">
+    <input type="hidden" name="miasto" value="<?= $billingAddress->getCity() ?>">
+    <input type="hidden" name="kodPocz" value="<?= $billingAddress->getPostcode() ?>">
+    <input type="hidden" name="char" value="UTF">
+    <input type="hidden" name="wniosekZapisany"
+           value="<?= $orderModel->getSaveOrderPageUrl([
+               'order' => $order->getId(),
+               'wniosek' => 'przyjety',
+           ]) ?>id_zamowienia/"
+    />
+    <input type="hidden" name="wniosekAnulowany"
+           value="<?= $orderModel->getSaveOrderPageUrl([
+               'order' => $order->getId(),
+               'wniosek' => 'odrzucony',
+           ]) ?>id_zamowienia/"
+    />
+</form>
 
 <script>
-    window.addEventListener('load', function(){
+    window.addEventListener('load', function () {
         document.getElementById('eraty-form').submit();
     });
 </script>

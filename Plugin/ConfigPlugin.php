@@ -1,43 +1,60 @@
 <?php
+
 /**
- * @copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
+
+declare(strict_types=1);
+
 namespace Aurora\Santander\Plugin;
 
+use Closure;
+use InvalidArgumentException;
+use Magento\Eav\Model\Config;
+use Magento\Catalog\Model\Product;
 use Magento\Variable\Model\VariableFactory;
+use Magento\Eav\Api\Data\AttributeInterface;
+use Magento\Config\Model\Config as BaseConfig;
+use Magento\Framework\Exception\InputException;
+use Magento\Framework\Exception\StateException;
+use Magento\Eav\Api\AttributeRepositoryInterface;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Serialize\SerializerInterface;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Eav\Api\AttributeOptionManagementInterface;
+use Magento\Eav\Api\Data\AttributeOptionInterfaceFactory;
+use Aurora\Santander\Model\Santander;
 
-/**
- * Class ConfigPlugin
- */
 class ConfigPlugin
 {
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     * @var ScopeConfigInterface
      */
     protected $scopeConfig;
 
     /**
-     * @var \Magento\Framework\Serialize\SerializerInterface
+     * @var SerializerInterface
      */
     protected $serializer;
 
     /**
-     * @var \Magento\Eav\Api\AttributeOptionManagementInterface
+     * @var AttributeOptionManagementInterface
      */
     protected $attributeOption;
 
     /**
-     * @var \Magento\Eav\Api\Data\AttributeOptionInterfaceFactory
+     * @var AttributeOptionInterfaceFactory
      */
     protected $optionFactory;
 
     /**
-     * @var \Magento\Eav\Api\AttributeRepositoryInterface
+     * @var AttributeRepositoryInterface
      */
     protected $attributeRepositoryInterface;
 
     /**
-     * @var \Magento\Eav\Model\Config
+     * @var Config
      */
     protected $eavConfig;
 
@@ -47,20 +64,20 @@ class ConfigPlugin
     public $entityTypeId;
 
     /**
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-     * @param \Magento\Framework\Serialize\SerializerInterface $serializer
-     * @param \Magento\Eav\Api\AttributeOptionManagementInterface $attributeOption
-     * @param \Magento\Eav\Api\Data\AttributeOptionInterfaceFactory $optionFactory
-     * @param \Magento\Eav\Api\AttributeRepositoryInterface $attributeRepositoryInterface
-     * @param \Magento\Eav\Model\Config $eavConfig
+     * @param ScopeConfigInterface $scopeConfig
+     * @param SerializerInterface $serializer
+     * @param AttributeOptionManagementInterface $attributeOption
+     * @param AttributeOptionInterfaceFactory $optionFactory
+     * @param AttributeRepositoryInterface $attributeRepositoryInterface
+     * @param Config $eavConfig
      */
     public function __construct(
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Framework\Serialize\SerializerInterface $serializer,
-        \Magento\Eav\Api\AttributeOptionManagementInterface $attributeOption,
-        \Magento\Eav\Api\Data\AttributeOptionInterfaceFactory $optionFactory,
-        \Magento\Eav\Api\AttributeRepositoryInterface $attributeRepositoryInterface,
-        \Magento\Eav\Model\Config $eavConfig
+        ScopeConfigInterface $scopeConfig,
+        SerializerInterface $serializer,
+        AttributeOptionManagementInterface $attributeOption,
+        AttributeOptionInterfaceFactory $optionFactory,
+        AttributeRepositoryInterface $attributeRepositoryInterface,
+        Config $eavConfig
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->serializer = $serializer;
@@ -71,14 +88,17 @@ class ConfigPlugin
     }
 
     /**
-     * @param \Magento\Config\Model\Config $subject
-     * @param \Closure $proceed
-     * @return \Closure
+     * Plugin around save method
+     *
+     * @param BaseConfig $subject
+     * @param Closure $proceed
+     *
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     * @return Closure
      */
-    public function aroundSave(
-        \Magento\Config\Model\Config $subject,
-        \Closure $proceed
-    ) {
+    public function aroundSave(BaseConfig $subject, Closure $proceed)
+    {
         if ($subject->getData('section') == 'payment') {
             $rates = [];
 
@@ -86,19 +106,19 @@ class ConfigPlugin
                 $oldConfig = $this->serializer->unserialize(
                     $this->scopeConfig->getValue('payment/eraty_santander/ranges')
                 );
-            } catch (\InvalidArgumentException $exception) {
+            } catch (InvalidArgumentException $exception) {
                 return $proceed();
             }
 
-            $this->entityTypeId = $this->eavConfig->getEntityType(\Magento\Catalog\Model\Product::ENTITY)->getEntityTypeId();
+            $this->entityTypeId = $this->eavConfig->getEntityType(Product::ENTITY)->getEntityTypeId();
             $groups = $subject->getData('groups');
             if (array_key_exists('ranges', $groups['eraty_santander']['fields'])) {
                 $newConfig = $groups['eraty_santander']['fields']['ranges']['value'];
                 $attribute = $this->attributeRepositoryInterface->get(
-                    \Magento\Catalog\Model\Product::ENTITY,
-                    \Aurora\Santander\Model\Santander::ATTRIBUTE_CODE
+                    Product::ENTITY,
+                    Santander::ATTRIBUTE_CODE
                 );
-    
+
                 foreach ($newConfig as $key => $value) {
                     if (isset($value['qty']) && isset($value['percent'])) {
                         $newLabel = $value['qty'] . ' x ' . $value['percent'] . '%';
@@ -111,7 +131,7 @@ class ConfigPlugin
                         }
                     }
                 }
-    
+
                 foreach ($oldConfig as $key => $value) {
                     if (!array_key_exists($key, $newConfig)) {
                         $label = $value['qty'] . ' x ' . $value['percent'] . '%';
@@ -120,30 +140,42 @@ class ConfigPlugin
                 }
             }
         }
-            
+
         return $proceed();
     }
 
     /**
      * Add attribute dropdown option
+     *
      * @param string $label
+     *
+     * @throws InputException
+     * @throws StateException
      * @return void
      */
     public function addOption($label)
     {
         $option = $this->optionFactory->create();
+
         $option->setLabel($label);
         $option->setValue($label);
+
         $this->attributeOption->add(
             $this->entityTypeId,
-            \Aurora\Santander\Model\Santander::ATTRIBUTE_CODE,
+            Santander::ATTRIBUTE_CODE,
             $option
         );
     }
+
     /**
      * Delete attribute dropdown option
-     * @param \Magento\Eav\Api\Data\AttributeInterface $attribute
+     *
+     * @param AttributeInterface $attribute
      * @param string $label
+     *
+     * @throws InputException
+     * @throws NoSuchEntityException
+     * @throws StateException
      * @return void
      */
     public function deleteOption($attribute, $label)
@@ -151,16 +183,21 @@ class ConfigPlugin
         $optionId = $attribute->getSource()->getOptionId($label);
         $options = $this->attributeOption->delete(
             $this->entityTypeId,
-            \Aurora\Santander\Model\Santander::ATTRIBUTE_CODE,
+            Santander::ATTRIBUTE_CODE,
             $optionId
         );
     }
+
     /**
      * Update attribute dropdown option
-     * @param \Magento\Eav\Api\Data\AttributeInterface $attribute
-     * @param array$options
+     *
+     * @param AttributeInterface $attribute
+     * @param array $options
      * @param string $oldlabel
      * @param string $newLabel
+     *
+     * @throws InputException
+     * @throws StateException
      * @return void
      */
     public function updateOption($attribute, $options, $oldlabel, $newLabel)
@@ -182,17 +219,22 @@ class ConfigPlugin
             $this->addOption($newLabel);
         }
     }
+
     /**
      * Get attribute dropdown options as array
-     * @param \Magento\Eav\Api\Data\AttributeInterface $attribute
-     * @return void
+     *
+     * @param AttributeInterface $attribute
+     *
+     * @throws InputException
+     * @throws StateException
+     * @return array
      */
     private function getOptions($attribute)
     {
         $options = [];
         $items = $this->attributeOption->getItems(
             $this->entityTypeId,
-            \Aurora\Santander\Model\Santander::ATTRIBUTE_CODE
+            Santander::ATTRIBUTE_CODE
         );
 
         foreach ($items as $item) {
@@ -201,6 +243,7 @@ class ConfigPlugin
                 $options[$id] = [0 => $item->getlabel()];
             }
         }
+
         return $options;
     }
 }

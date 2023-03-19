@@ -1,11 +1,21 @@
 <?php
+
 /**
- * @copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
+
+declare(strict_types=1);
+
 namespace Aurora\Santander\Setup\Patch\Data;
 
+use Magento\Catalog\Model\Product;
+use Aurora\Santander\Model\Santander;
+use Magento\Eav\Setup\EavSetupFactory;
+use Magento\Cms\Api\Data\BlockInterfaceFactory;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
+use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\PatchRevertableInterface;
+use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
 
 /**
  * Attribute
@@ -13,20 +23,22 @@ use Magento\Framework\Setup\Patch\PatchRevertableInterface;
 class Attribute implements DataPatchInterface, PatchRevertableInterface
 {
     /**
-     * @var \Magento\Framework\Setup\ModuleDataSetupInterface
+     * @var ModuleDataSetupInterface
      */
     private $moduleDataSetup;
+
     /**
-     * @var \Magento\Eav\Setup\EavSetupFactory
+     * @var EavSetupFactory
      */
     private $eavSetupFactory;
+
     /**
-     * @param \Magento\Framework\Setup\ModuleDataSetupInterface $moduleDataSetup
-     * @param \Magento\Cms\Api\Data\BlockInterfaceFactory $blockFactory
+     * @param ModuleDataSetupInterface $moduleDataSetup
+     * @param BlockInterfaceFactory $blockFactory
      */
     public function __construct(
-        \Magento\Framework\Setup\ModuleDataSetupInterface $moduleDataSetup,
-        \Magento\Eav\Setup\EavSetupFactory $eavSetupFactory
+        ModuleDataSetupInterface $moduleDataSetup,
+        EavSetupFactory $eavSetupFactory
     ) {
         $this->moduleDataSetup = $moduleDataSetup;
         $this->eavSetupFactory = $eavSetupFactory;
@@ -42,14 +54,14 @@ class Attribute implements DataPatchInterface, PatchRevertableInterface
         $eavSetup = $this->eavSetupFactory->create();
 
         $eavSetup->addAttribute(
-            \Magento\Catalog\Model\Product::ENTITY,
-            \Aurora\Santander\Model\Santander::ATTRIBUTE_CODE,
+            Product::ENTITY,
+            Santander::ATTRIBUTE_CODE,
             [
                 'type' => 'int',
                 'label' => __('Installments Santander'),
                 'input' => 'select',
                 'source' => 'Magento\Eav\Model\Entity\Attribute\Source\Table',
-                'global' => \Magento\Catalog\Model\ResourceModel\Eav\Attribute::SCOPE_GLOBAL,
+                'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
                 'visible' => true,
                 'user_defined' => true,
                 'sort_order' => 100,
@@ -78,8 +90,8 @@ class Attribute implements DataPatchInterface, PatchRevertableInterface
         $eavSetup = $this->eavSetupFactory->create();
 
         $eavSetup->removeAttribute(
-            \Magento\Catalog\Model\Product::ENTITY,
-            \Aurora\Santander\Model\Santander::ATTRIBUTE_CODE
+            Product::ENTITY,
+            Santander::ATTRIBUTE_CODE
         );
 
         $this->moduleDataSetup->getConnection()->endSetup();

@@ -1,38 +1,54 @@
 <?php
+
 /**
- * @copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
+
+declare(strict_types=1);
+
 namespace Aurora\Santander\ViewModel;
+
+use InvalidArgumentException;
+
+use Magento\Sales\Model\Order\Item;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Framework\Serialize\SerializerInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\View\Element\Block\ArgumentInterface;
+
+use Aurora\Santander\Model\Santander;
 
 /**
  * Rates
  */
-class Rates implements \Magento\Framework\View\Element\Block\ArgumentInterface
+class Rates implements ArgumentInterface
 {
     /**
-     * @var \Magento\Framework\App\Config\ScopeConfigInterface
+     * @var ScopeConfigInterface
      */
     protected $scopeConfig;
 
     /**
-     * @var \Magento\Framework\Serialize\SerializerInterface
+     * @var SerializerInterface
      */
     protected $serializer;
 
     /**
-     * @var \Magento\Store\Model\StoreManagerInterface
+     * @var StoreManagerInterface
      */
     protected $storeManager;
 
     /**
-     * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
-     * @param \Magento\Framework\Serialize\SerializerInterface $serializer
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
+     * @param ScopeConfigInterface $scopeConfig
+     * @param SerializerInterface $serializer
+     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Framework\Serialize\SerializerInterface $serializer,
-        \Magento\Store\Model\StoreManagerInterface $storeManager
+        ScopeConfigInterface $scopeConfig,
+        SerializerInterface $serializer,
+        StoreManagerInterface $storeManager
     ) {
         $this->scopeConfig = $scopeConfig;
         $this->serializer = $serializer;
@@ -41,26 +57,28 @@ class Rates implements \Magento\Framework\View\Element\Block\ArgumentInterface
 
     /**
      * Get installment rates from config
+     * @throws NoSuchEntityException
      * @return array|null
      */
     private function getRatesFromConfig()
     {
         $rates = $this->scopeConfig->getValue(
             'payment/eraty_santander/ranges',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            ScopeInterface::SCOPE_STORE,
             $this->storeManager->getStore()->getId()
         );
 
         try {
             return $this->serializer->unserialize($rates);
-        } catch (\InvalidArgumentException $exception) {
+        } catch (InvalidArgumentException $exception) {
             return null;
         }
     }
 
     /**
      * Get Santander shopId based on installments
-     * @param \Magento\Sales\Model\Order\Item[] $items
+     * @param Item[] $items
+     * @throws NoSuchEntityException
      * @return integer
      */
     public function getShopId($items)
@@ -68,9 +86,13 @@ class Rates implements \Magento\Framework\View\Element\Block\ArgumentInterface
         $labels = [];
         $rates = $this->getRatesFromConfig();
 
+        if (!$rates) {
+            return 0;
+        }
+
         foreach ($items as $item) {
             $product = $item->getProduct();
-            $label = $product->getResource()->getAttribute(\Aurora\Santander\Model\Santander::ATTRIBUTE_CODE)
+            $label = $product->getResource()->getAttribute(Santander::ATTRIBUTE_CODE)
                 ->getFrontend()
                 ->getValue($product);
             if ($label) {

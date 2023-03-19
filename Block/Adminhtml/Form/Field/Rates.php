@@ -1,13 +1,19 @@
 <?php
+
 /**
- * @copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
+
+declare(strict_types=1);
+
 namespace Aurora\Santander\Block\Adminhtml\Form\Field;
+
+use Magento\Config\Block\System\Config\Form\Field\FieldArray\AbstractFieldArray;
 
 /**
  * Class Rates
  */
-class Rates extends \Magento\Config\Block\System\Config\Form\Field\FieldArray\AbstractFieldArray
+class Rates extends AbstractFieldArray
 {
     /**
      * eRaty Santander rates template

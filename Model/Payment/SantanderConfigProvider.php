@@ -1,33 +1,39 @@
 <?php
+
 /**
- * @copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
+
+declare(strict_types=1);
+
 namespace Aurora\Santander\Model\Payment;
 
-/**
- * Class SantanderConfigProvider
- */
-class SantanderConfigProvider implements \Magento\Checkout\Model\ConfigProviderInterface
+use Aurora\Santander\Helper\Data;
+use Magento\Framework\UrlInterface;
+use Magento\Checkout\Model\ConfigProviderInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
+
+class SantanderConfigProvider implements ConfigProviderInterface
 {
-    const SANTANDER_AGREEMENT_ID = 'santander_configuration/agreement_configuration/santander_agreement';
+    public const SANTANDER_AGREEMENT_ID = 'santander_configuration/agreement_configuration/santander_agreement';
 
     /**
-     * @var \Magento\Framework\UrlInterface
+     * @var UrlInterface
      */
     public $urlBuilder;
 
     /**
-     * @var \Aurora\Santander\Helper\Data 
+     * @var Data
      */
     public $dataHelper;
 
     /**
-     * @param \Magento\Framework\UrlInterface $urlBuilder
-     * @param \Aurora\Santander\Helper\Data $dataHelper
+     * @param UrlInterface $urlBuilder
+     * @param Data $dataHelper
      */
     public function __construct(
-        \Magento\Framework\UrlInterface $urlBuilder,
-        \Aurora\Santander\Helper\Data $dataHelper
+        UrlInterface $urlBuilder,
+        Data $dataHelper
     ) {
         $this->urlBuilder = $urlBuilder;
         $this->dataHelper = $dataHelper;
@@ -35,12 +41,15 @@ class SantanderConfigProvider implements \Magento\Checkout\Model\ConfigProviderI
 
     /**
      * Get redirect URL
-     * @return string
+     *
+     * @throws NoSuchEntityException
+     * @return array
      */
     public function getConfig()
     {
         $config['santander']['redirect'] = $this->urlBuilder->getUrl('santander/eraty/redirect');
-        $config['santander']['agreement_id'] =  $this->dataHelper->getConfigValue(self::SANTANDER_AGREEMENT_ID);
+        $config['santander']['agreement_id'] = $this->dataHelper->getConfigValue(self::SANTANDER_AGREEMENT_ID);
+
         return $config;
     }
 }

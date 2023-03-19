@@ -1,28 +1,30 @@
 <?php
+
 /**
- * Copyright © Magento, Inc. All rights reserved.
- * See COPYING.txt for license details.
+ * @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
+
+declare(strict_types=1);
+
 namespace Aurora\Santander\Plugin;
 
-/**
- * Class AgreementsValidator
- */
+use Aurora\Santander\Helper\Data;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\CheckoutAgreements\Model\AgreementsValidator as MagentoAgreementsValidator;
+
 class AgreementsValidator
 {
-    const SANTANDER_AGREEMENT_ID = 'santander_configuration/agreement_configuration/santander_agreement';
+    public const SANTANDER_AGREEMENT_ID = 'santander_configuration/agreement_configuration/santander_agreement';
 
     /**
-     * @var \Aurora\Santander\Helper\Data
+     * @var Data
      */
     protected $dataHelper;
 
     /**
-     * @param \Aurora\Santander\Helper\Data $dataHelper
+     * @param Data $dataHelper
      */
-    public function __construct(        
-        \Aurora\Santander\Helper\Data $dataHelper
-    )
+    public function __construct(Data $dataHelper)
     {
         $this->dataHelper = $dataHelper;
     }
@@ -30,15 +32,20 @@ class AgreementsValidator
     /**
      * Add santander agreement
      *
+     * @param MagentoAgreementsValidator $subject
      * @param int[] $agreementIds
+     *
+     * @throws NoSuchEntityException
      * @return array
      */
-    public function beforeIsValid(\Magento\CheckoutAgreements\Model\AgreementsValidator $subject, $agreementIds = [])
+    public function beforeIsValid(MagentoAgreementsValidator $subject, $agreementIds = [])
     {
         $santanderId = $this->dataHelper->getConfigValue(self::SANTANDER_AGREEMENT_ID);
+
         if (!in_array($santanderId, $agreementIds)) {
-            $agreementIds[] = $santanderId; 
+            $agreementIds[] = $santanderId;
         }
+
         return [$agreementIds];
     }
 }

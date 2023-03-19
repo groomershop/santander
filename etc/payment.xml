@@ -1,7 +1,9 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
+
 <!--
-@copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+    @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
 -->
+
 <payment xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../Magento/Payment/etc/payment.xsd">
     <groups>
         <group id="santander">

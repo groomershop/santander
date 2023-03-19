@@ -1,91 +1,106 @@
 <?php
+
 /**
- * @copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
+
+declare(strict_types=1);
+
 namespace Aurora\Santander\Test\Unit\ViewModel;
 
-/**
- * Installment
- */
-class InstallmentTest extends \PHPUnit\Framework\TestCase
+use Psr\Log\LoggerInterface;
+use PHPUnit\Framework\TestCase;
+use Magento\Store\Model\Store;
+use Magento\Quote\Model\Quote;
+use Magento\Framework\Registry;
+use Magento\Checkout\Helper\Cart;
+use Magento\Catalog\Model\Product;
+use Magento\Directory\Model\Currency;
+use Magento\Quote\Model\Quote\Address;
+use Magento\Framework\Pricing\Helper\Data;
+use Magento\Directory\Model\CurrencyFactory;
+use Magento\Store\Model\StoreManagerInterface;
+use Magento\Catalog\Api\ProductRepositoryInterface;
+use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
+use Magento\Eav\Model\Entity\Attribute\AbstractAttribute;
+use Magento\Eav\Model\Entity\Attribute\Frontend\AbstractFrontend;
+use Aurora\Santander\ViewModel\Installment;
+use Aurora\Santander\Helper\Data as AuroraData;
+
+class InstallmentTest extends TestCase
 {
-    public $checkoutSession;
-    public $orderFactory;
-    public $urlBuilder;
-    public $scopeConfig;
-    public $serializer;
-    public $storeManager;
-    public $order;
-
-    public function setUp()
+    /**
+     * @return void
+     */
+    public function setUp(): void
     {
-        $this->registry = $this->getMockBuilder(\Magento\Framework\Registry::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        
-        $this->priceHelper = $this->getMockBuilder(\Magento\Framework\Pricing\Helper\Data::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        
-        $this->dataHelper = $this->getMockBuilder(\Aurora\Santander\Helper\Data::class)
+        $this->registry = $this->getMockBuilder(Registry::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->cart = $this->getMockBuilder(\Magento\Checkout\Helper\Cart::class)
+        $this->priceHelper = $this->getMockBuilder(Data::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->productRepository  =$this->getMockBuilder(\Magento\Catalog\Api\ProductRepositoryInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        
-        $this->currencyFactory = $this->getMockBuilder(\Magento\Directory\Model\CurrencyFactory::class)
+        $this->dataHelper = $this->getMockBuilder(AuroraData::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->storeManager = $this->getMockBuilder(\Magento\Store\Model\StoreManagerInterface::class)
+        $this->cart = $this->getMockBuilder(Cart::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->logger = $this->getMockBuilder(\Psr\Log\LoggerInterface::class)
+        $this->productRepository = $this->getMockBuilder(ProductRepositoryInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->product = $this->getMockBuilder(\Magento\Catalog\Model\Product::class)
+        $this->currencyFactory = $this->getMockBuilder(CurrencyFactory::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->store = $this->getMockBuilder(\Magento\Store\Model\Store::class)
+        $this->storeManager = $this->getMockBuilder(StoreManagerInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
-            
-        $this->currency = $this->getMockBuilder(\Magento\Directory\Model\Currency::class)
+
+        $this->logger = $this->getMockBuilder(LoggerInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
-         
-        $this->quote = $this->getMockBuilder(\Magento\Quote\Model\Quote::class)
+
+        $this->product = $this->getMockBuilder(Product::class)
             ->disableOriginalConstructor()
-            ->getMock(); 
-              
-        $this->abstractDb = $this->getMockBuilder(\Magento\Framework\Model\ResourceModel\Db\AbstractDb::class)
+            ->getMock();
+
+        $this->store = $this->getMockBuilder(Store::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->currency = $this->getMockBuilder(Currency::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->quote = $this->getMockBuilder(Quote::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->abstractDb = $this->getMockBuilder(AbstractDb::class)
             ->disableOriginalConstructor()
             ->setMethods(['getAttribute', '_construct'])
             ->getMock();
 
-        $this->attr = $this->getMockBuilder(\Magento\Eav\Model\Entity\Attribute\AbstractAttribute::class)
+        $this->attr = $this->getMockBuilder(AbstractAttribute::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->frontendAttr = $this->getMockBuilder(\Magento\Eav\Model\Entity\Attribute\Frontend\AbstractFrontend ::class)
+        $this->frontendAttr = $this->getMockBuilder(AbstractFrontend ::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->address = $this->getMockBuilder(\Magento\Quote\Model\Quote\Address ::class)
+        $this->address = $this->getMockBuilder(Address ::class)
             ->disableOriginalConstructor()
             ->setMethods(['getShippingAmount'])
             ->getMock();
-            
-        $this->installment = new \Aurora\Santander\ViewModel\Installment(
+
+        $this->installment = new Installment(
             $this->registry,
             $this->priceHelper,
             $this->dataHelper,
@@ -108,14 +123,14 @@ class InstallmentTest extends \PHPUnit\Framework\TestCase
         $this->abstractDb->expects($this->once())
             ->method('getAttribute')
             ->willReturn($this->attr);
-        
+
         $this->attr->expects($this->once())
             ->method('getFrontend')
             ->willReturn($this->frontendAttr);
-        
+
         $this->frontendAttr->expects($this->once())
             ->method('getValue')
-            ->willReturn($attribute); 
+            ->willReturn($attribute);
 
         $this->installment->calculateInstallment($product);
         $this->assertSame($this->installment->qty, 10);
@@ -154,11 +169,11 @@ class InstallmentTest extends \PHPUnit\Framework\TestCase
         $this->abstractDb->expects($this->once())
             ->method('getAttribute')
             ->willReturn($this->attr);
-        
+
         $this->attr->expects($this->once())
             ->method('getFrontend')
             ->willReturn($this->frontendAttr);
-        
+
         $this->frontendAttr->expects($this->once())
             ->method('getValue')
             ->willReturn($attribute);

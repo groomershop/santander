@@ -1,25 +1,64 @@
 <?php
+
 /**
- * @copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
-namespace Aurora\Santander\Test\Unit\Plugin;
 
-class InstallmentTest extends \PHPUnit\Framework\TestCase
+declare(strict_types=1);
+
+namespace Aurora\Santander\Test\Unit\Model\Plugin;
+
+use ArrayIterator;
+use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use Magento\Swatches\Model\Plugin\EavAttribute;
+use Magento\Catalog\Model\Product;
+use Magento\Framework\Serialize\Serializer\Json;
+use Magento\Eav\Model\ResourceModel\Entity\Attribute;
+use Magento\ConfigurableProduct\Block\Product\View\Type\Configurable as BlockConfigurable;
+use Magento\ConfigurableProduct\Model\Product\Type\Configurable as ModelConfigurable;
+use Aurora\Santander\ViewModel\Installment;
+use Aurora\Santander\ViewModel\InstallmentFactory;
+use Aurora\Santander\Plugin\Installment as AuroraInstallment;
+
+class InstallmentTest extends TestCase
 {
-    public $installmentFactory;
-    public $json;
-    public $eavAttribute;
-    public $subject;
-    public $plugin;
+    /**
+     * @var MockObject|InstallmentFactory
+     */
+    public MockObject|InstallmentFactory $installmentFactory;
 
-    public function setUp()
+    /**
+     * @var MockObject|Json
+     */
+    public MockObject|Json $json;
+
+    /**
+     * @var MockObject|EavAttribute
+     */
+    public MockObject|EavAttribute $eavAttribute;
+
+    /**
+     * @var MockObject|BlockConfigurable
+     */
+    public MockObject|BlockConfigurable $subject;
+
+    /**
+     * @var MockObject|AuroraInstallment
+     */
+    public MockObject|AuroraInstallment $plugin;
+
+    /**
+     * @inheritDoc
+     */
+    public function setUp(): void
     {
-        $this->installmentFactory = $this->getMockBuilder(\Aurora\Santander\ViewModel\InstallmentFactory::class)
-            ->setMethods(['create'])
+        $this->installmentFactory = $this->getMockBuilder(InstallmentFactory::class)
+            ->onlyMethods(['create'])
             ->disableOriginalConstructor()
             ->getMock();
 
-        $installment = $this->getMockBuilder(\Aurora\Santander\ViewModel\Installment::class)
+        $installment = $this->getMockBuilder(Installment::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -27,23 +66,23 @@ class InstallmentTest extends \PHPUnit\Framework\TestCase
             ->method('create')
             ->willReturn($installment);
 
-        $this->json  =$this->getMockBuilder(\Magento\Framework\Serialize\Serializer\Json::class)
+        $this->json = $this->getMockBuilder(Json::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->eavAttribute = $this->getMockBuilder(\Magento\Eav\Model\ResourceModel\Entity\Attribute::class)
+        $this->eavAttribute = $this->getMockBuilder(Attribute::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->subject = $this->getMockBuilder(\Magento\ConfigurableProduct\Block\Product\View\Type\Configurable::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        
-        $this->result = $this->getMockBuilder(\Magento\ConfigurableProduct\Block\Product\View\Type\Configurable::class)
+        $this->subject = $this->getMockBuilder(BlockConfigurable::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->plugin = new \Aurora\Santander\Plugin\Installment(
+        $this->result = $this->getMockBuilder(BlockConfigurable::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->plugin = new AuroraInstallment(
             $this->installmentFactory,
             $this->json,
             $this->eavAttribute
@@ -54,12 +93,12 @@ class InstallmentTest extends \PHPUnit\Framework\TestCase
     {
         $config = [];
         $result = $this->result->getJsonConfig();
-        $product = $this->getMockBuilder(\Magento\Catalog\Model\Product::class)
+        $product = $this->getMockBuilder(Product::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $configurable = $this->getMockBuilder(\Magento\ConfigurableProduct\Model\Product\Type\Configurable::class)
-            ->setMethods(['getUsedProducts'])
+        $configurable = $this->getMockBuilder(ModelConfigurable::class)
+            ->onlyMethods(['getUsedProducts'])
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -71,13 +110,14 @@ class InstallmentTest extends \PHPUnit\Framework\TestCase
             ->method('getTypeInstance')
             ->willReturn($configurable);
 
-        $products = new \ArrayIterator(new \ArrayIterator([$product, $product]));
+        $products = new ArrayIterator(new ArrayIterator([$product, $product]));
 
         $configurable->expects($this->once())
             ->method('getUsedProducts')
             ->willReturn($products);
 
-        $this->json->expects($this->once())
+        $this->json
+            ->expects($this->once())
             ->method('unserialize')
             ->with($result)
             ->willReturn($config);

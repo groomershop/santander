@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+-->
+
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="sales_order">
+        <column xsi:type="varchar"
+                name="santander_bank_response_status"
+                nullable="true"
+                comment="Santander Bank Response Status"
+                length="45"/>
+        <column xsi:type="smallint"
+                name="santander_bank_status_code"
+                nullable="true"
+                default="0"
+                comment="Santander Bank Status Code {(0 => disable), (1 => enable), (2 => closed)}"
+                unsigned="true"/>
+        <column xsi:type="varchar"
+                name="santander_bank_order_number"
+                nullable="true"
+                comment="Santander Bank Order Number"
+                length="20"/>
+    </table>
+    <table name="sales_order_grid">
+        <column xsi:type="varchar"
+                name="santander_bank_response_status"
+                nullable="true"
+                comment="Santander Bank Response Status"
+                length="45"/>
+    </table>
+</schema>

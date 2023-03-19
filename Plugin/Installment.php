@@ -1,36 +1,46 @@
 <?php
-/**
- * @copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (http://auroracreation.com)
- */
-namespace Aurora\Santander\Plugin;
 
 /**
- * Class Installment
+ * @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
+
+declare(strict_types=1);
+
+namespace Aurora\Santander\Plugin;
+
+use Magento\Catalog\Model\Product;
+use Magento\Framework\Serialize\Serializer\Json;
+use Magento\Eav\Model\ResourceModel\Entity\Attribute;
+use Magento\ConfigurableProduct\Block\Product\View\Type\Configurable;
+use Aurora\Santander\Model\Santander;
+use Aurora\Santander\ViewModel\InstallmentFactory;
+
 class Installment
 {
     /**
-     * @var \Aurora\Santander\ViewModel\InstallmentFactory
+     * @var InstallmentFactory
      */
     public $installmentFactory;
+
     /**
-     * @var \Magento\Framework\Serialize\Serializer\Json
+     * @var Json
      */
     public $json;
+
     /**
-     * @var \Magento\Framework\Serialize\Serializer\Json
+     * @var Json
      */
     public $eavAttribute;
 
     /**
-     * @param \Aurora\Santander\ViewModel\InstallmentFactory $installmentFactory
-     * @param \Magento\Framework\Serialize\Serializer\Json $json
-     * @param \Magento\Eav\Model\ResourceModel\Entity\Attribute $eavAttribute
+     * @param InstallmentFactory $installmentFactory
+     * @param Json $json
+     * @param Attribute $eavAttribute
      */
     public function __construct(
-        \Aurora\Santander\ViewModel\InstallmentFactory $installmentFactory,
-        \Magento\Framework\Serialize\Serializer\Json $json,
-        \Magento\Eav\Model\ResourceModel\Entity\Attribute $eavAttribute
+        InstallmentFactory $installmentFactory,
+        Json $json,
+        Attribute $eavAttribute
     ) {
         $this->installmentFactory = $installmentFactory;
         $this->json = $json;
@@ -38,12 +48,15 @@ class Installment
     }
 
     /**
-     * @param \Magento\ConfigurableProduct\Block\Product\View\Type\Configurable $subject
+     * Plugin after getJsonConfig method
+     *
+     * @param Configurable $subject
      * @param string $result
+     *
      * @return string
      */
     public function afterGetJsonConfig(
-        \Magento\ConfigurableProduct\Block\Product\View\Type\Configurable $subject,
+        Configurable $subject,
         $result
     ) {
         $installments = [];
@@ -53,9 +66,9 @@ class Installment
             $configurable,
             [
                 $this->eavAttribute->getIdByCode(
-                    \Magento\Catalog\Model\Product::ENTITY,
-                    \Aurora\Santander\Model\Santander::ATTRIBUTE_CODE
-                )
+                    Product::ENTITY,
+                    Santander::ATTRIBUTE_CODE
+                ),
             ]
         );
 
@@ -74,6 +87,7 @@ class Installment
 
         $config = $this->json->unserialize($result);
         $config = array_merge($config, ['installments' => $installments]);
+
         return $this->json->serialize($config);
     }
 }

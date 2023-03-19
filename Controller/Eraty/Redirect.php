@@ -1,31 +1,36 @@
 <?php
-/**
- * @copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (http://auroracreation.com)
- */
-namespace Aurora\Santander\Controller\Eraty;
 
 /**
- * Class Redirect
+ * @copyright Copyright (c) 2023 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
-class Redirect extends \Magento\Framework\App\Action\Action
+
+declare(strict_types=1);
+
+namespace Aurora\Santander\Controller\Eraty;
+
+use Magento\Framework\View\Result\PageFactory;
+use Magento\Framework\App\Action\HttpGetActionInterface;
+
+class Redirect implements HttpGetActionInterface
 {
     /**
-     * @var \Magento\Framework\View\Result\PageFactory
+     * @var PageFactory
      */
     public $pageFactory;
 
     /**
-     * @param \Magento\Framework\App\Action\Context $context
-     * @param \Magento\Framework\View\Result\PageFactory $pageFactory
+     * Redirect action class constructor
+     *
+     * @param PageFactory $pageFactory
      */
-    public function __construct(
-        \Magento\Framework\App\Action\Context $context,
-        \Magento\Framework\View\Result\PageFactory $pageFactory
-    ) {
-        parent::__construct($context);
+    public function __construct(PageFactory $pageFactory)
+    {
         $this->pageFactory = $pageFactory;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function execute()
     {
         return $this->pageFactory->create();

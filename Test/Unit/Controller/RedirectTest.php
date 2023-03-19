@@ -1,28 +1,53 @@
 <?php
+
 /**
- * @copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
-namespace Aurora\Santander\Test\Unit\ViewModel;
 
-class RedirectTest extends \PHPUnit\Framework\TestCase
+declare(strict_types=1);
+
+namespace Aurora\Santander\Test\Unit\Controller;
+
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
+use Magento\Framework\App\Action\Context;
+use Magento\Framework\View\Result\PageFactory;
+use Magento\Framework\Exception\NotFoundException;
+use Aurora\Santander\Controller\Eraty\Redirect;
+
+class RedirectTest extends TestCase
 {
-    public $controller;
-    public $context;
-    public $pageFactory;
+    /**
+     * @var Redirect
+     */
+    public Redirect $controller;
 
-    public function setUp()
+    /**
+     * @var MockObject|Context
+     */
+    public MockObject|Context $context;
+
+    /**
+     * @var MockObject|PageFactory
+     */
+    public MockObject|PageFactory $pageFactory;
+
+    /**
+     * @inheritDoc
+     */
+    public function setUp(): void
     {
-        $this->context = $this->getMockBuilder(\Magento\Framework\App\Action\Context::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $this->pageFactory = $this->getMockBuilder(\Magento\Framework\View\Result\PageFactory::class)
+        $this->context = $this
+            ->getMockBuilder(Context::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->controller = new \Aurora\Santander\Controller\Eraty\Redirect(
-            $this->context,
-            $this->pageFactory
-        );
+        $this->pageFactory = $this
+            ->getMockBuilder(PageFactory::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->controller = new Redirect($this->pageFactory);
     }
 
     public function testExecute()
@@ -30,6 +55,9 @@ class RedirectTest extends \PHPUnit\Framework\TestCase
         $this->pageFactory->expects($this->once())
             ->method('create');
 
-        $this->controller->execute();
+        try {
+            $this->controller->execute();
+        } catch (NotFoundException) {
+        }
     }
 }

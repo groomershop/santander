@@ -1,47 +1,78 @@
 <?php
+
 /**
- * @copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
+
+declare(strict_types=1);
+
 namespace Aurora\Santander\Test\Unit\ViewModel;
 
-class ApplicationStatusTest extends \PHPUnit\Framework\TestCase
+use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use Magento\Sales\Model\Order;
+use Magento\Checkout\Model\Session;
+use Magento\Quote\Model\Quote\Payment;
+use Magento\Framework\App\RequestInterface;
+use Magento\Cms\Api\BlockRepositoryInterface;
+use Aurora\Santander\ViewModel\ApplicationStatus;
+
+class ApplicationStatusTest extends TestCase
 {
-    public $checkoutSession;
-    public $request;
-    public $blockRepository;
-    public $viewModel;
+    /**
+     * @var MockObject|Session
+     */
+    public MockObject|Session $checkoutSession;
 
-    public function setUp()
+    /**
+     * @var MockObject|RequestInterface
+     */
+    public MockObject|RequestInterface $request;
+
+    /**
+     * @var MockObject|BlockRepositoryInterface
+     */
+    public MockObject|BlockRepositoryInterface $blockRepository;
+
+    /**
+     * @var MockObject|ApplicationStatus
+     */
+    public MockObject|ApplicationStatus $viewModel;
+
+    /**
+     * @inheritDoc
+     */
+    public function setUp(): void
     {
-        $this->checkoutSession = $this->getMockBuilder(\Magento\Checkout\Model\Session::class)
+        $this->checkoutSession = $this->getMockBuilder(Session::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->request = $this->getMockBuilder(\Magento\Framework\App\RequestInterface::class)
+        $this->request = $this->getMockBuilder(RequestInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->blockRepository = $this->getMockBuilder(\Magento\Cms\Api\BlockRepositoryInterface::class)
+        $this->blockRepository = $this->getMockBuilder(BlockRepositoryInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->viewModel = $this->getMockBuilder(\Aurora\Santander\ViewModel\ApplicationStatus::class)
+        $this->viewModel = $this->getMockBuilder(ApplicationStatus::class)
             ->setConstructorArgs(
                 [
                     $this->checkoutSession,
                     $this->request,
-                    $this->blockRepository
+                    $this->blockRepository,
                 ]
             )
-            ->setMethods(['hasValidParams', 'isSantanderPayment','getLastOrder'])
+            ->onlyMethods(['hasValidParams', 'isSantanderPayment', 'getLastOrder'])
             ->getMock();
 
-        $payment = $this->getMockBuilder(\Magento\Quote\Model\Quote\Payment::class)
+        $payment = $this->getMockBuilder(Payment::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $order = $this->getMockBuilder(\Magento\Sales\Model\Order::class)
-            ->setMethods(['getPayment'])
+        $order = $this->getMockBuilder(Order::class)
+            ->onlyMethods(['getPayment'])
             ->disableOriginalConstructor()
             ->getMock();
 
