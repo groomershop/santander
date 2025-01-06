@@ -1,8 +1,14 @@
 # `aurora/module-santander`
 
+## v1.2.8
+
+#### FIXES
+
+- Skip configurable product, include only his simple child element.
+
 ## v1.2.7
 
-#### Repositories
+#### REPOSITORY
 
 - Add CI that's run unit tests.
 

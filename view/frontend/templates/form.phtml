@@ -9,7 +9,6 @@ use Aurora\Santander\ViewModel\Order;
 use Aurora\Santander\ViewModel\Rates;
 use Aurora\Santander\Block\Form\Santander;
 use Magento\Framework\Pricing\Helper\Data as PricingHelper;
-
 ?>
 
 <?php
@@ -23,15 +22,15 @@ use Magento\Framework\Pricing\Helper\Data as PricingHelper;
 $orderModel = $block->getOrder();
 $ratesModel = $block->getRates();
 $priceHelper = $this->helper(PricingHelper::class);
-
 $order = $orderModel->getLastOrder();
 $billingAddress = $order->getBillingAddress();
-
 $totalValue = 0;
 $totalQty = 0;
 $count = 0;
 $currencyCode = $order->getOrderCurrencyCode();
+?>
 
+<?php
 if (!$order->getId()) {
     return;
 }
@@ -40,12 +39,19 @@ if (!$order->getId()) {
 <form id="eraty-form" name="formularz_eRaty" action="https://wniosek.eraty.pl/formularz/" method="post">
     <?php foreach ($order->getAllItems() as $key => $item): ?>
         <?php
+        if (!$block->validateItem($item)) {
+            continue;
+        }
+        ?>
+
+        <?php
         $qty = $item->getQtyOrdered();
         $discount = $item->getDiscountAmount() ?? 0;
-
         $price = $block->calculateItemPrice($item);
         $displayPrice = $orderModel->getPricePLN($price, $currencyCode);
+        ?>
 
+        <?php
         $count++;
         $totalValue += $price;
         $totalQty += $qty;
@@ -53,16 +59,8 @@ if (!$order->getId()) {
 
         <input name="idTowaru<?= $count ?>" readonly="readonly" type="hidden" value="<?= $item->getProductId() ?>"/>
         <input name="nazwaTowaru<?= $count ?>" readonly="readonly" type="hidden" value="<?= $item->getName() ?>"/>
-        <input name="wartoscTowaru<?= $count ?>"
-               readonly="readonly"
-               type="hidden"
-               value="<?= $displayPrice ?>"
-        />
-        <input name="liczbaSztukTowaru<?= $count ?>"
-               readonly="readonly"
-               type="hidden"
-               value="<?= (int)$qty ?>"
-        />
+        <input name="wartoscTowaru<?= $count ?>" readonly="readonly" type="hidden" value="<?= $displayPrice ?>"/>
+        <input name="liczbaSztukTowaru<?= $count ?>" readonly="readonly" type="hidden" value="<?= (int)$qty ?>"/>
         <input name="jednostkaTowaru<?= $count ?>" readonly="readonly" type="hidden" value="szt."/>
     <?php endforeach; ?>
 

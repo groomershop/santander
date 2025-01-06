@@ -1,0 +1,32 @@
+<?php
+/**
+ * @copyright Copyright (c) 2023 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ */
+?>
+
+<?php
+use Aurora\Santander\Block\Form\Santander;
+use Magento\Framework\Exception\LocalizedException;
+?>
+
+<?php
+/**
+ * @var Santander $block;
+ */
+?>
+
+<?php
+$instructions = $block->getInstructions();
+
+if (!$instructions) {
+    return;
+}
+
+$code = $block->getMethodCode();
+?>
+
+<div class="items <?= $block->escapeHtml($code) ?> instructions agreement checkout-agreement-item-content"
+     id="payment_form_<?= $block->escapeHtml($code) ?>"
+     style="display: none;">
+    <?= /* @noEscape */ nl2br($block->escapeHtml($instructions)) ?>
+</div>

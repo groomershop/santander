@@ -10,7 +10,7 @@ namespace Aurora\Santander\Model;
 
 use Magento\Payment\Block\Info\Instructions;
 use Magento\Payment\Model\Method\AbstractMethod;
-use Magento\Santander\Block\Form\Santander as MagentoSantander;
+use Aurora\Santander\Block\Form\Santander as MagentoSantander;
 
 class Santander extends AbstractMethod
 {

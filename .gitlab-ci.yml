@@ -1,0 +1,55 @@
+variables:
+  DOCKER_DRIVER: overlay2
+  PHP_VERSION: "8.1"
+  COMPOSER_VERSION: "2.1.11"
+  MAGENTO_VERSION: "2.4.5"
+  MODULE_NAME: Santander
+
+stages:
+  - install_magento
+  - unit-tests
+
+install_magento:
+  stage: install_magento
+  image: mmilewski/php-fpm:$PHP_VERSION
+  before_script:
+    - apt-get update -yqq && apt-get -yqq --force-yes install unzip
+    - curl -O "https://getcomposer.org/download/$COMPOSER_VERSION/composer.phar"
+    - chmod a+x composer.phar
+    - mv composer.phar /usr/local/bin/composer
+    - shopt -s dotglob
+    - mkdir -p /var/www/module && mv * /var/www/module
+    - mkdir -p /root/.composer
+    - echo $composer_auth > /root/.composer/auth.json
+  script:
+    - composer create-project --repository=https://repo.magento.com/ magento/project-community-edition:$MAGENTO_VERSION . --no-progress
+    - composer require --dev bitexpert/phpstan-magento
+    - composer require --dev phpstan/extension-installer
+    - mkdir -p ./app/code/Aurora/$MODULE_NAME
+    - mv /var/www/module/* ./app/code/Aurora/$MODULE_NAME
+    - bin/magento module:enable --all
+    - php -d memory_limit=-1 bin/magento setup:di:compile
+  artifacts:
+    expire_in: 30min
+    paths:
+      - app
+      - bin
+      - dev
+      - generated
+      - lib
+      - setup
+      - var
+      - vendor
+  except: ['master']
+
+phpunit:
+  stage: unit-tests
+  image: mmilewski/php-fpm-xdebug:$PHP_VERSION
+  script:
+    - ./vendor/phpunit/phpunit/phpunit ./app/code/Aurora/$MODULE_NAME/. --whitelist  ./app/code/Aurora/$MODULE_NAME --coverage-text
+  allow_failure: false
+  dependencies:
+    - install_magento
+  only:
+    - branches
+  except: ['master']

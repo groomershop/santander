@@ -5,7 +5,7 @@
         "magento/project-community-edition": ">=2.3"
     },
     "type": "magento2-module",
-    "version": "1.2.7",
+    "version": "1.2.9",
     "license": [
         "OSL-3.0"
     ],
