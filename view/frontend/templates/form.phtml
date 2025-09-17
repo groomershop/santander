@@ -81,7 +81,7 @@ if (!$order->getId()) {
     <input type="hidden" name="liczbaSztukTowarow" value="<?= /* @noEscape */  $totalQty ?>">
     <input type="hidden" name="numerSklepu" value="<?= /* @noEscape */  $ratesModel->getShopId($order->getAllItems()) ?>">
     <input type="hidden" name="typProduktu" value="0">
-    <input type="hidden" name="sposobDostarczeniaTowaru" value="<?= /* @noEscape */  $order->getShippingDescription() ?>">
+    <input type="hidden" name="sposobDostarczeniaTowaru" value="<?= /* @noEscape */  ($order->getShippingDescription() != '' ? $order->getShippingDescription() : 'Przesyłka kurierska') ?>">
     <input type="hidden" name="nrZamowieniaSklep" value="<?= /* @noEscape */  $order->getIncrementId() ?>">
     <input type="hidden" name="imie" value="<?= /* @noEscape */  $billingAddress->getFirstname() ?>">
     <input type="hidden" name="nazwisko" value="<?= /* @noEscape */  $billingAddress->getLastname() ?>">
