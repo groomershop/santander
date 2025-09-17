@@ -88,14 +88,6 @@
                     <label>Maximum Product Price</label>
                 </field>
             </group>
-            <group id="agreement_configuration" translate="label" type="text" sortOrder="10" showInDefault="1"
-                   showInWebsite="1" showInStore="1">
-                <label>Santander agreement configuration</label>
-                <field id="santander_agreement" translate="label" type="text" sortOrder="2" showInDefault="1"
-                       showInWebsite="1" showInStore="1">
-                    <label>Santander agreement ID</label>
-                </field>
-            </group>
             <group id="display_configuration" translate="label" type="text" sortOrder="10" showInDefault="1"
                    showInWebsite="1" showInStore="1">
                 <label>Banner and link to landing page</label>
@@ -111,26 +103,27 @@
                 </field>
             </group>
 
-            <group id="auto_update" translate="label" type="text" sortOrder="20" showInDefault="1">
+            <group id="auto_update" translate="label" type="text" sortOrder="20"
+                   showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>State Auto Update</label>
 
                 <field id="api_login" translate="label" type="text" sortOrder="10"
-                       showInDefault="1" showInWebsite="0" showInStore="0">
+                       showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Login to API</label>
                 </field>
 
                 <field id="api_password" translate="label" type="text" sortOrder="20"
-                       showInDefault="1" showInWebsite="0" showInStore="0">
+                       showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Password to API</label>
                 </field>
 
                 <field id="shop_id" translate="label" type="text" sortOrder="30"
-                       showInDefault="1" showInWebsite="0" showInStore="0">
+                       showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>API shop ID</label>
                 </field>
 
                 <field id="cert" translate="label" sortOrder="40"
-                       showInDefault="1" showInWebsite="1"
+                       showInDefault="1" showInWebsite="1" showInStore="1"
                        type="Magento\Config\Block\System\Config\Form\Field\File">
                     <backend_model>Magento\Config\Model\Config\Backend\File</backend_model>
                     <label>Upload certificate</label>
@@ -138,15 +131,15 @@
                 </field>
 
                 <field id="cert_password" translate="label" type="text" sortOrder="50"
-                       showInDefault="1" showInWebsite="0" showInStore="0">
+                       showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Password to certificate</label>
                 </field>
             </group>
 
             <group id="logger" translate="label" type="text" sortOrder="30" showInDefault="1">
                 <label>Logger settings</label>
-                <field id="module_prefix" translate="label" type="text" sortOrder="1" showInDefault="1"
-                       showInWebsite="0" showInStore="0">
+                <field id="module_prefix" translate="label" type="text" sortOrder="1"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Module Prefix</label>
                 </field>
             </group>

@@ -14,6 +14,7 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Framework\Exception\NotFoundException;
 use Aurora\Santander\Controller\Eraty\Redirect;
+use Aurora\Santander\Model\InitRequest;
 
 class RedirectTest extends TestCase
 {
@@ -33,6 +34,11 @@ class RedirectTest extends TestCase
     public MockObject|PageFactory $pageFactory;
 
     /**
+     * @var MockObject|InitRequest
+     */
+    public MockObject|InitRequest $initRequest;
+
+    /**
      * @inheritDoc
      */
     public function setUp(): void
@@ -47,7 +53,12 @@ class RedirectTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->controller = new Redirect($this->pageFactory);
+        $this->initRequest = $this
+            ->getMockBuilder(InitRequest::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->controller = new Redirect($this->pageFactory, $this->initRequest);
     }
 
     public function testExecute()

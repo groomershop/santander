@@ -1,16 +1,13 @@
 <?php
-
 /**
- * @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2024 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
-
 declare(strict_types=1);
 
 namespace Aurora\Santander\ViewModel;
 
 use Exception;
 use InvalidArgumentException;
-
 use Magento\Checkout\Model\Session;
 use Magento\Framework\UrlInterface;
 use Magento\Sales\Model\OrderFactory;
@@ -23,9 +20,6 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
 
-/**
- * Order
- */
 class Order implements ArgumentInterface
 {
     /**
@@ -92,6 +86,7 @@ class Order implements ArgumentInterface
 
     /**
      * Get last order id from session
+     *
      * @return MagentoOrder
      */
     public function getLastOrder()
@@ -101,6 +96,7 @@ class Order implements ArgumentInterface
 
     /**
      * Get checkout success page URL
+     *
      * @param array $params
      * @return string
      */
@@ -109,14 +105,22 @@ class Order implements ArgumentInterface
         return $this->urlBuilder->getUrl('checkout/onepage/success', $params);
     }
 
-    public function getSaveOrderPageUrl($params)
+    /**
+     * Retrieved URL for save order page
+     *
+     * @param array $params
+     * @return string
+     */
+    public function getSaveOrderPageUrl(array $params)
     {
         return $this->urlBuilder->getUrl('santander/eraty/saveorder', $params);
     }
 
     /**
      * Get installment ranges from config table
-     * @return array|null
+     *
+     * @return array|bool|float|int|string|null
+     * @throws NoSuchEntityException
      */
     public function getInstallmentsFromConfig()
     {
@@ -133,15 +137,25 @@ class Order implements ArgumentInterface
         }
     }
 
-    public function getPricePLN($price, $currencyCode)
+    /**
+     * Retrieved price in PLN
+     *
+     * @param float $price
+     * @param string $currencyCode
+     * @return float
+     * @throws NoSuchEntityException
+     */
+    public function getPricePLN(float $price, string $currencyCode)
     {
         $store = $this->storeManager->getStore();
+        /* @phpstan-ignore-next-line */
         $currency = $this->currencyFactory->create()->load($currencyCode);
         $avaiableCurrencies = $store->getAvailableCurrencyCodes();
         try {
             if (in_array('PLN', $avaiableCurrencies)) {
                 $price = $currency->convert($price, 'PLN');
             }
+            // phpcs:ignore
         } catch (Exception $e) {
         }
 

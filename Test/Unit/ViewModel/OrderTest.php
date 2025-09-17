@@ -60,6 +60,11 @@ class OrderTest extends TestCase
     public MockObject|Order $order;
 
     /**
+     * @var MockObject|CurrencyFactory
+     */
+    public MockObject|CurrencyFactory $currencyFactory;
+
+    /**
      * @inheritDoc
      */
     public function setUp(): void

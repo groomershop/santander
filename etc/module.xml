@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
-    @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+/**
+  * @copyright Copyright (c) 2024 Aurora Creation Sp. z o.o. (https://auroracreation.com)
+ */
 -->
-
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">
     <module name="Aurora_Santander">
         <sequence>
             <module name="Magento_Sales"/>

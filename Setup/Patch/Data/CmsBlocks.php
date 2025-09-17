@@ -1,9 +1,7 @@
 <?php
-
 /**
- * @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2024 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
-
 declare(strict_types=1);
 
 namespace Aurora\Santander\Setup\Patch\Data;
@@ -15,9 +13,6 @@ use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Setup\Patch\PatchRevertableInterface;
 
-/**
- * CmsBlocks
- */
 class CmsBlocks implements DataPatchInterface, PatchRevertableInterface
 {
     /**
@@ -51,17 +46,19 @@ class CmsBlocks implements DataPatchInterface, PatchRevertableInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function apply()
     {
         $this->moduleDataSetup->getConnection()->startSetup();
         $this->createCmsBlocks();
         $this->moduleDataSetup->getConnection()->endSetup();
+        return $this;
     }
 
     /**
      * Get CMS blocks as array
+     *
      * @return array
      */
     private function getBlocks()
@@ -74,6 +71,7 @@ class CmsBlocks implements DataPatchInterface, PatchRevertableInterface
 
     /**
      * Create CMS blocks for eRaty Payment
+     *
      * @return void
      */
     private function createCmsBlocks()
@@ -93,7 +91,9 @@ class CmsBlocks implements DataPatchInterface, PatchRevertableInterface
 
     /**
      * Delete CMS blocks
+     *
      * @return void
+     * @SuppressWarnings(PHPMD.UnusedLocalVariable)
      */
     private function deleteCmsBlocks()
     {
@@ -104,6 +104,7 @@ class CmsBlocks implements DataPatchInterface, PatchRevertableInterface
 
     /**
      * Revert data patch
+     *
      * @return void
      */
     public function revert()
@@ -113,11 +114,21 @@ class CmsBlocks implements DataPatchInterface, PatchRevertableInterface
         $this->moduleDataSetup->getConnection()->endSetup();
     }
 
+    /**
+     * Retrieved dependiences
+     *
+     * @return array|string[]
+     */
     public static function getDependencies()
     {
         return [];
     }
 
+    /**
+     * Retrieved aliases
+     *
+     * @return array|string[]
+     */
     public function getAliases()
     {
         return [];

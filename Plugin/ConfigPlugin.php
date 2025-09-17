@@ -26,6 +26,9 @@ use Magento\Eav\Api\AttributeOptionManagementInterface;
 use Magento\Eav\Api\Data\AttributeOptionInterfaceFactory;
 use Aurora\Santander\Model\Santander;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ */
 class ConfigPlugin
 {
     /**
@@ -96,12 +99,11 @@ class ConfigPlugin
      * @throws LocalizedException
      * @throws NoSuchEntityException
      * @return Closure
+     * @SuppressWarnings(PHPMD.CyclomaticComplexity)
      */
     public function aroundSave(BaseConfig $subject, Closure $proceed)
     {
         if ($subject->getData('section') == 'payment') {
-            $rates = [];
-
             try {
                 $oldConfig = $this->serializer->unserialize(
                     $this->scopeConfig->getValue('payment/eraty_santander/ranges')
@@ -181,7 +183,7 @@ class ConfigPlugin
     public function deleteOption($attribute, $label)
     {
         $optionId = $attribute->getSource()->getOptionId($label);
-        $options = $this->attributeOption->delete(
+        $this->attributeOption->delete(
             $this->entityTypeId,
             Santander::ATTRIBUTE_CODE,
             $optionId

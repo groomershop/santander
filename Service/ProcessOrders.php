@@ -1,9 +1,7 @@
 <?php
-
 /**
- * @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2024 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
-
 declare(strict_types=1);
 
 namespace Aurora\Santander\Service;
@@ -20,10 +18,10 @@ use Aurora\Santander\Helper\Config;
 
 class ProcessOrders
 {
-    const SANTANDER_URL = 'https://api.santanderconsumer.pl/ProposalServiceHybrid';
-    const SANTANDER_WSDL = 'https://api.santanderconsumer.pl/ProposalServiceHybrid?wsdl';
-    const SANTANDER_PAYMENT_METHOD = 'eraty_santander';
-    const SANTANDER_CLOSED_STATES = [SantanderStatus::REJECT, SantanderStatus::RELEASE];
+    public const SANTANDER_URL = 'https://api.santanderconsumer.pl/ProposalServiceHybrid';
+    public const SANTANDER_WSDL = 'https://api.santanderconsumer.pl/ProposalServiceHybrid?wsdl';
+    public const SANTANDER_PAYMENT_METHOD = 'eraty_santander';
+    public const SANTANDER_CLOSED_STATES = [SantanderStatus::REJECT, SantanderStatus::RELEASE];
 
     /** @var OrderCollectionFactory */
     private $orderCollectionFactory;
@@ -62,6 +60,8 @@ class ProcessOrders
     }
 
     /**
+     * Retrieved order collection with Santander payment
+     *
      * @return Collection
      */
     private function getOrderCollectionWithSantanderPaymentMethod()
@@ -83,11 +83,13 @@ class ProcessOrders
     }
 
     /**
+     * Retrieved application data by ID
+     *
      * @param string $santanderId
      *
      * @return mixed
      */
-    private function getOrderStateById($santanderId)
+    private function getOrderApplicationDataById($santanderId)
     {
         try {
             $client = $this->soapClientFactory->create(self::SANTANDER_WSDL, [
@@ -116,7 +118,7 @@ class ProcessOrders
                 ],
             ]);
 
-            return $state->GetApplicationStateResult->Applications->ApplicationData->CreditState;
+            return $state->GetApplicationStateResult->Applications->ApplicationData;
         } catch (Exception $exception) {
             $this->logger->error($exception->getMessage());
 
@@ -125,21 +127,24 @@ class ProcessOrders
     }
 
     /**
+     * Update all status
+     *
      * @param OutputInterface|null $output
      *
      * @throws FileSystemException
      * @return void
      */
-    public function updateStatusAll($output)
+    public function updateStatusAll($output = null)
     {
         $orders = $this->getOrderCollectionWithSantanderPaymentMethod();
 
         foreach ($orders as $order) {
-            $id = $order->getId();
-            $state = $this->getOrderStateById(sprintf('%09d', $id));
+            $applicationData = $this->getOrderApplicationDataById($order->getIncrementId());
+            $state = $applicationData?->CreditState;
+            $downpayment = $applicationData?->Downpayment;
 
-            if (!$state) {
-                $output->writeln(sprintf('<error>[ID: %s] something went wrong...</error>', $id));
+            if (!$state || !$downpayment) {
+                $output->writeln(sprintf('<error>[ID: %s] something went wrong...</error>', $order->getIncrementId()));
                 continue;
             }
 
@@ -148,10 +153,13 @@ class ProcessOrders
                     ? StatusCodeInterface::CLOSED : StatusCodeInterface::ENABLE
             );
             $order->setSantanderBankResponseStatus($state);
+            $order->setSantanderBankDownpayment((float)$downpayment);
 
             $this->orderRepository->save($order);
 
-            $output->writeln(sprintf('<info>[ID: %s] Order updated correctly...</info>', $id));
+            if ($output) {
+                $output->writeln(sprintf('<info>[ID: %s] Order updated correctly...</info>', $order->getIncrementId()));
+            }
         }
     }
 }

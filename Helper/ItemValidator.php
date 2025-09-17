@@ -47,6 +47,7 @@ class ItemValidator
     public function addRule(string $name, callable $rule)
     {
         if (!is_callable($rule)) {
+            // phpcs:ignore
             throw new Exception('rule must be callable');
         }
 

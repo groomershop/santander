@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
-    @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+/**
+ * @copyright Copyright (c) 2025 Aurora Creation Sp. z o.o. (https://auroracreation.com)
+ */
 -->
-
 <listing
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd"
@@ -15,6 +15,15 @@
 
                     <item name="visible" xsi:type="boolean">true</item>
                     <item name="label" xsi:type="string" translate="true">Santander Bank Response Status</item>
+                </item>
+            </argument>
+        </column>
+        <column name="santander_bank_downpayment"
+                component="Aurora_Santander/js/grid/columns/downpayment">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="visible" xsi:type="boolean">true</item>
+                    <item name="label" xsi:type="string" translate="true">Downpayment</item>
                 </item>
             </argument>
         </column>

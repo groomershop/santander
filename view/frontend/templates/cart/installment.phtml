@@ -1,19 +1,25 @@
 <?php
 /**
- * @copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (https://auroracreation.com)
+ * @copyright Copyright (c) 2024 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\Escaper;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
 
 $installment = $block->getInstallment();
 $rates = $block->getRates();
 $finalPrice = $installment->getFinalPrices();
 $products = $installment->getCartProducts();
+// phpcs:disable Generic.Files.LineLength.TooLong
 ?>
 <?php if ($installment->isAvailableInCart($finalPrice) && $finalPrice !== 0): ?>
     <div>
-        <a onclick='window.open("https://wniosek.eraty.pl/symulator/oblicz/numerSklepu/<?= $rates->getShopId($products); ?>/typProduktu/0/wartoscTowarow/<?= $installment->toPLN($finalPrice) ?>", "Policz_rate", "width=640,height=500,directories=no,location=no,menubar=no,resizable=yes,scrollbars=yes,status=no,toolbar=no");'
-            title="<?= $block->escapeHtml(__('Calculate installment!')); ?>" style="cursor: pointer;">
-            <img src="<?= $this->getViewFileUrl('Aurora_Santander::images/oblicz_raty.png') ?>"
-                alt="<?= $block->escapeHtml(__('Calculate installment!')); ?>">
+        <a onclick='window.open("https://wniosek.eraty.pl/symulator/oblicz/numerSklepu/<?= $escaper->escapeUrl($rates->getShopId($products)) ?>/typProduktu/0/wartoscTowarow/<?= $escaper->escapeUrl($installment->toPLN($finalPrice)) ?>", "Policz_rate", "width=640,height=500,directories=no,location=no,menubar=no,resizable=yes,scrollbars=yes,status=no,toolbar=no");'
+            title="<?= $escaper->escapeHtml(__('Calculate installment!')); ?>" style="cursor: pointer;">
+            <img src="<?= $escaper->escapeUrl($block->getViewFileUrl('Aurora_Santander::images/oblicz_raty.png')) ?>"
+                alt="<?= $escaper->escapeHtml(__('Calculate installment!')); ?>">
         </a>
     </div>
 <?php endif; ?>

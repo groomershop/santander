@@ -78,7 +78,6 @@ class Installment
 
             $value = '';
             if ($installment->qty !== null && $installment->percent !== null) {
-                $price = $installment->getPrice();
                 $value = $installment->qty . ' ' . __('installments') . ' ' .
                     $installment->percent . '%' . __('on') . $installment->getPrice();
             }

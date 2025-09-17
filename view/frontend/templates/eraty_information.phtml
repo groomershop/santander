@@ -1,13 +1,17 @@
 <?php
 /**
- * @copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2024 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
+use Magento\Framework\Escaper;
+
+/** @var Escaper $escaper */
+
 $applicationStatus = $block->getApplicationStatus();
 $applicationId = $applicationStatus->getApplicationId();
 
-echo $applicationStatus->getCmsBlock();
+echo $escaper->escapeHtml($applicationStatus->getCmsBlock());
 
 if ($applicationId) {
-    echo __('Credit application number / decision is:') . $applicationId;
+    echo $escaper->escapeHtml(__('Credit application number / decision is:') . $applicationId);
 }
 ?>

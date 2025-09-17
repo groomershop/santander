@@ -1,12 +1,18 @@
 <?php
 /**
- * @copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2024 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
+
+use Magento\Framework\Escaper;
+
 $instructions = $block->getInstructions();
+
+/** @var Escaper $escaper */
 ?>
 <?php if ($instructions): ?>
-    <?php $methodCode = $block->escapeHtml($block->getMethodCode());?>
-    <div class="items <?= /* @noEscape */ $methodCode ?> instructions agreement checkout-agreement-item-content" id="payment_form_<?= /* @noEscape */ $methodCode ?>" style="display: none;">
-        <?= /* @noEscape */ nl2br($block->escapeHtml($instructions)) ?>
+    <?php $methodCode = $escaper->escapeHtml($block->getMethodCode());?>
+    <div class="items <?= /* @noEscape */ $methodCode ?> instructions agreement checkout-agreement-item-content"
+         id="payment_form_<?= /* @noEscape */ $methodCode ?>" style="display: none;">
+        <?= /* @noEscape */ nl2br($escaper->escapeHtml($instructions)) ?>
     </div>
 <?php endif; ?>

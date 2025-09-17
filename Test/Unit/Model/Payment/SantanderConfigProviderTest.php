@@ -27,6 +27,11 @@ class SantanderConfigProviderTest extends TestCase
     public MockObject|SantanderConfigProvider $model;
 
     /**
+     * @var MockObject|Data
+     */
+    public MockObject|Data $dataHelper;
+
+    /**
      * @inheritDoc
      */
     public function setUp(): void
@@ -55,13 +60,8 @@ class SantanderConfigProviderTest extends TestCase
             ->method('getUrl')
             ->willReturn($url);
 
-        $this->dataHelper->expects($this->once())
-            ->method('getConfigValue')
-            ->willReturn(1);
-
         $result = $this->model->getConfig();
 
         $this->assertTrue(is_array($result) && isset($result['santander']['redirect']));
-        $this->assertTrue(is_array($result) && isset($result['santander']['agreement_id']));
     }
 }

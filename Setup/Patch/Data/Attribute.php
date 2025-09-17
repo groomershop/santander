@@ -1,9 +1,7 @@
 <?php
-
 /**
- * @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2024 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
-
 declare(strict_types=1);
 
 namespace Aurora\Santander\Setup\Patch\Data;
@@ -16,10 +14,8 @@ use Magento\Framework\Setup\Patch\DataPatchInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\PatchRevertableInterface;
 use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
+use Magento\Eav\Model\Entity\Attribute\Source\Table;
 
-/**
- * Attribute
- */
 class Attribute implements DataPatchInterface, PatchRevertableInterface
 {
     /**
@@ -34,7 +30,7 @@ class Attribute implements DataPatchInterface, PatchRevertableInterface
 
     /**
      * @param ModuleDataSetupInterface $moduleDataSetup
-     * @param BlockInterfaceFactory $blockFactory
+     * @param EavSetupFactory $eavSetupFactory
      */
     public function __construct(
         ModuleDataSetupInterface $moduleDataSetup,
@@ -45,7 +41,7 @@ class Attribute implements DataPatchInterface, PatchRevertableInterface
     }
 
     /**
-     * {@inheritdoc}
+     * @inheritdoc
      */
     public function apply()
     {
@@ -60,7 +56,7 @@ class Attribute implements DataPatchInterface, PatchRevertableInterface
                 'type' => 'int',
                 'label' => __('Installments Santander'),
                 'input' => 'select',
-                'source' => 'Magento\Eav\Model\Entity\Attribute\Source\Table',
+                'source' => Table::class,
                 'global' => ScopedAttributeInterface::SCOPE_GLOBAL,
                 'visible' => true,
                 'user_defined' => true,
@@ -77,10 +73,13 @@ class Attribute implements DataPatchInterface, PatchRevertableInterface
         );
 
         $this->moduleDataSetup->getConnection()->endSetup();
+
+        return $this;
     }
 
     /**
      * Revert data patch
+     *
      * @return void
      */
     public function revert()
@@ -97,11 +96,21 @@ class Attribute implements DataPatchInterface, PatchRevertableInterface
         $this->moduleDataSetup->getConnection()->endSetup();
     }
 
+    /**
+     * Retrieved dependiences
+     *
+     * @return array|string[]
+     */
     public static function getDependencies()
     {
         return [];
     }
 
+    /**
+     * Retrieved aliases
+     *
+     * @return array|string[]
+     */
     public function getAliases()
     {
         return [];

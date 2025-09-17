@@ -23,6 +23,14 @@
                 nullable="true"
                 comment="Santander Bank Order Number"
                 length="20"/>
+        <column xsi:type="decimal"
+                name="santander_bank_downpayment"
+                scale="4"
+                precision="20"
+                unsigned="false"
+                nullable="false"
+                default="0"
+                comment="Downpayment amount"/>
     </table>
     <table name="sales_order_grid">
         <column xsi:type="varchar"
@@ -30,5 +38,13 @@
                 nullable="true"
                 comment="Santander Bank Response Status"
                 length="45"/>
+        <column xsi:type="decimal"
+                name="santander_bank_downpayment"
+                scale="4"
+                precision="20"
+                unsigned="false"
+                nullable="false"
+                default="0"
+                comment="Downpayment amount"/>
     </table>
 </schema>

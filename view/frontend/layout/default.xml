@@ -1,26 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
-    @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+/**
+  * @copyright Copyright (c) 2024 Aurora Creation Sp. z o.o. (https://auroracreation.com)
+ */
 -->
-
-<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceContainer name="content">
-            <block class="Aurora\Santander\Block\SantanderWidget" ifconfig="santander_configuration/display_configuration/santander_banner" before="-" name="banner_santander" template="promo_banner.phtml">
+            <block class="Aurora\Santander\Block\SantanderWidget"
+                   ifconfig="santander_configuration/display_configuration/santander_banner" before="-"
+                   name="banner_santander" template="promo_banner.phtml">
                 <arguments>
                     <argument name="is_banner" xsi:type="string">1</argument>
-                    <argument name="lp_url" xsi:type="string">https://www.eraty.pl/do-pobrania/landing-page/proces-online/</argument>
-					<argument name="lp_link" xsi:type="string">1</argument>
+                    <argument name="lp_url"
+                              xsi:type="string">https://www.eraty.pl/do-pobrania/landing-page/proces-online/</argument>
+                    <argument name="lp_link" xsi:type="string">1</argument>
                 </arguments>
             </block>
         </referenceContainer>
         <referenceContainer name="footer">
             <referenceBlock name="footer_links">
-                <block class="Aurora\Santander\Block\SantanderWidget" ifconfig="santander_configuration/display_configuration/santander_landlink" name="landing_link_santander" template="promo_banner.phtml">
+                <block class="Aurora\Santander\Block\SantanderWidget"
+                       ifconfig="santander_configuration/display_configuration/santander_landlink"
+                       name="landing_link_santander" template="promo_banner.phtml">
                     <arguments>
                         <argument name="is_banner" xsi:type="string">0</argument>
-                        <argument name="lp_url" xsi:type="string">https://www.eraty.pl/do-pobrania/landing-page/proces-online/</argument>
+                        <argument
+                            name="lp_url"
+                            xsi:type="string">https://www.eraty.pl/do-pobrania/landing-page/proces-online/</argument>
                         <argument name="lp_link" xsi:type="string">1</argument>
                     </arguments>
                 </block>

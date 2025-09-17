@@ -2,10 +2,11 @@
     "name": "aurora/module-santander",
     "description": "Add Santander payment methods to Magento 2",
     "require": {
-        "magento/project-community-edition": ">=2.3"
+        "magento/project-community-edition": ">=2.4",
+        "php": ">=8.2"
     },
     "type": "magento2-module",
-    "version": "1.2.9",
+    "version": "1.3.7",
     "license": [
         "OSL-3.0"
     ],

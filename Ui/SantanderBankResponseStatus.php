@@ -1,9 +1,7 @@
 <?php
-
 /**
- * @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2024 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
-
 declare(strict_types=1);
 
 namespace Aurora\Santander\Ui;
@@ -15,7 +13,7 @@ use Magento\Ui\Component\Listing\Columns\Column;
 
 class SantanderBankResponseStatus extends Column
 {
-    const SANTANDER_PAYMENT_METHOD = 'eraty_santander';
+    public const SANTANDER_PAYMENT_METHOD = 'eraty_santander';
 
     /**
      * @var OrderRepositoryInterface
@@ -46,6 +44,8 @@ class SantanderBankResponseStatus extends Column
     }
 
     /**
+     * Prepare data
+     *
      * @param array $dataSource
      * @return array
      */

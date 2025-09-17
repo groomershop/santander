@@ -1,16 +1,13 @@
 <?php
-
 /**
- * @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2024 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
-
 declare(strict_types=1);
 
 namespace Aurora\Santander\ViewModel;
 
 use Exception;
 use Psr\Log\LoggerInterface;
-
 use Magento\Framework\Registry;
 use Magento\Checkout\Helper\Cart;
 use Magento\Catalog\Model\Product;
@@ -19,19 +16,16 @@ use Magento\Directory\Model\CurrencyFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
-
+use Magento\Framework\Exception\NoSuchEntityException;
 use Aurora\Santander\Model\Santander;
 use Aurora\Santander\Helper\Data as AuroraData;
 
-/**
- * Installment
- */
 class Installment implements ArgumentInterface
 {
-    const MIN_PRODUCT_PRICE = 'santander_configuration/calc_button_configuration/min_product_price';
-    const MAX_PRODUCT_PRICE = 'santander_configuration/calc_button_configuration/max_product_price';
-    const MIN_ORDER_TOTAL = 'payment/eraty_santander/min_order_total';
-    const MAX_ORDER_TOTAL = 'payment/eraty_santander/max_order_total';
+    public const MIN_PRODUCT_PRICE = 'santander_configuration/calc_button_configuration/min_product_price';
+    public const MAX_PRODUCT_PRICE = 'santander_configuration/calc_button_configuration/max_product_price';
+    public const MIN_ORDER_TOTAL = 'payment/eraty_santander/min_order_total';
+    public const MAX_ORDER_TOTAL = 'payment/eraty_santander/max_order_total';
 
     /**
      * @var Registry
@@ -166,19 +160,24 @@ class Installment implements ArgumentInterface
     public function getPrice()
     {
         if ($this->percent > 0) {
-            return $this->priceHelper->currency(($this->price * (1 + ($this->percent / 100))) / $this->qty, true,
-                false);
+            return $this->priceHelper->currency(
+                ($this->price * (1 + ($this->percent / 100))) / $this->qty,
+                true,
+                false
+            );
         }
 
         return $this->priceHelper->currency($this->price / $this->qty, true, false);
     }
 
     /**
-     * @param $price
+     * Check is available
      *
-     * @return boolean
+     * @param float|null $price
+     * @return bool
+     * @throws NoSuchEntityException
      */
-    public function isAvailable($price = null)
+    public function isAvailable(float $price = null)
     {
         $minProductPrice = $this->dataHelper->getConfigValue(self::MIN_PRODUCT_PRICE);
         $maxProductPrice = $this->dataHelper->getConfigValue(self::MAX_PRODUCT_PRICE);
@@ -187,11 +186,13 @@ class Installment implements ArgumentInterface
     }
 
     /**
-     * @param $price
+     * Check is available in cart
      *
-     * @return boolean
+     * @param float|null $price
+     * @return bool
+     * @throws NoSuchEntityException
      */
-    public function isAvailableInCart($price = null)
+    public function isAvailableInCart(float $price = null)
     {
         $minProductPrice = $this->dataHelper->getConfigValue(self::MIN_ORDER_TOTAL);
         $maxProductPrice = $this->dataHelper->getConfigValue(self::MAX_ORDER_TOTAL);
@@ -200,13 +201,14 @@ class Installment implements ArgumentInterface
     }
 
     /**
-     * @param $price
-     * @param $minProductPrice
-     * @param $maxProductPrice
+     * Retrieved check price
      *
-     * @return boolean
+     * @param float|null $price
+     * @param string|null $minProductPrice
+     * @param string|null $maxProductPrice
+     * @return bool
      */
-    public function checkPrices($price, $minProductPrice, $maxProductPrice)
+    public function checkPrices(?float $price, ?string $minProductPrice, ?string $maxProductPrice)
     {
         $this->price = $price ? $price : $this->price;
         if ($this->price > $minProductPrice && $this->price < $maxProductPrice) {
@@ -219,7 +221,10 @@ class Installment implements ArgumentInterface
     }
 
     /**
-     * @return boolean
+     * Retrieved final price
+     *
+     * @return float|int
+     * @throws NoSuchEntityException
      */
     public function getFinalPrices()
     {
@@ -234,12 +239,16 @@ class Installment implements ArgumentInterface
             }
         }
         $shippingPrice = $this->cart->getQuote()->getShippingAddress()->getShippingAmount();
+        $discount = $this->cart->getQuote()->getSubtotal() -$this->cart->getQuote()->getSubtotalWithDiscount();
 
-        return $finalPrice + $shippingPrice;
+        return $finalPrice + $shippingPrice - $discount;
     }
 
     /**
+     * Retrieved cart products
+     *
      * @return boolean
+     * @SuppressWarnings(PHPMD.BooleanGetMethodName)
      */
     public function getCartProducts()
     {
@@ -249,14 +258,17 @@ class Installment implements ArgumentInterface
     }
 
     /**
-     * @param $price
+     * Convert to PLN
      *
-     * @return int
+     * @param float $price
+     * @return float|mixed
+     * @throws NoSuchEntityException
      */
-    public function toPLN($price)
+    public function toPLN(float $price)
     {
         $store = $this->storeManager->getStore();
         $currencyCode = $store->getCurrentCurrencyCode();
+        /* @phpstan-ignore-next-line */
         $currency = $this->currencyFactory->create()->load($currencyCode);
         $avaiableCurrencies = $store->getAvailableCurrencyCodes();
         try {

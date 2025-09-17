@@ -1,9 +1,7 @@
 <?php
-
 /**
- * @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2024 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
-
 declare(strict_types=1);
 
 namespace Aurora\Santander\ViewModel;
@@ -15,9 +13,6 @@ use Magento\Cms\Api\BlockRepositoryInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
 
-/**
- * ApplicationStatus
- */
 class ApplicationStatus implements ArgumentInterface
 {
     /**
@@ -57,6 +52,7 @@ class ApplicationStatus implements ArgumentInterface
 
     /**
      * Get last order id from session
+     *
      * @return void
      */
     private function getLastOrder()
@@ -66,6 +62,7 @@ class ApplicationStatus implements ArgumentInterface
 
     /**
      * Check is Santander method selected
+     *
      * @return boolean
      */
     private function isSantanderPayment()
@@ -80,6 +77,7 @@ class ApplicationStatus implements ArgumentInterface
 
     /**
      * Get Santander CMS block
+     *
      * @return string
      */
     public function getCmsBlock()
@@ -100,6 +98,7 @@ class ApplicationStatus implements ArgumentInterface
 
     /**
      * Check if request has required parameters
+     *
      * @return boolean
      */
     private function hasValidParams()
@@ -113,6 +112,7 @@ class ApplicationStatus implements ArgumentInterface
 
     /**
      * Get application ID from request
+     *
      * @return int|null
      */
     public function getApplicationId()

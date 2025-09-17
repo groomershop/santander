@@ -1,33 +1,25 @@
 <?php
 /**
- * @copyright Copyright (c) 2023 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2024 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
-?>
-
-<?php
 use Aurora\Santander\ViewModel\Order;
 use Aurora\Santander\ViewModel\Rates;
 use Aurora\Santander\Block\Form\Santander;
-use Magento\Framework\Pricing\Helper\Data as PricingHelper;
-?>
 
-<?php
 /** @var Santander $block */
 /** @var Order $orderModel */
 /** @var Rates $ratesModel */
-/** @var PricingHelper $priceHelper */
-?>
 
-<?php
 $orderModel = $block->getOrder();
 $ratesModel = $block->getRates();
-$priceHelper = $this->helper(PricingHelper::class);
 $order = $orderModel->getLastOrder();
 $billingAddress = $order->getBillingAddress();
 $totalValue = 0;
 $totalQty = 0;
 $count = 0;
 $currencyCode = $order->getOrderCurrencyCode();
+// phpcs:disable Generic.Files.LineLength.TooLong
+
 ?>
 
 <?php
@@ -57,11 +49,15 @@ if (!$order->getId()) {
         $totalQty += $qty;
         ?>
 
-        <input name="idTowaru<?= $count ?>" readonly="readonly" type="hidden" value="<?= $item->getProductId() ?>"/>
-        <input name="nazwaTowaru<?= $count ?>" readonly="readonly" type="hidden" value="<?= $item->getName() ?>"/>
-        <input name="wartoscTowaru<?= $count ?>" readonly="readonly" type="hidden" value="<?= $displayPrice ?>"/>
-        <input name="liczbaSztukTowaru<?= $count ?>" readonly="readonly" type="hidden" value="<?= (int)$qty ?>"/>
-        <input name="jednostkaTowaru<?= $count ?>" readonly="readonly" type="hidden" value="szt."/>
+        <input name="idTowaru<?= /* @noEscape */ $count ?>" readonly="readonly"
+               type="hidden" value="<?= /* @noEscape */ $item->getProductId() ?>"/>
+        <input name="nazwaTowaru<?= /* @noEscape */ $count ?>" readonly="readonly"
+               type="hidden" value="<?= /* @noEscape */ $item->getName() ?>"/>
+        <input name="wartoscTowaru<?= /* @noEscape */ $count ?>" readonly="readonly"
+               type="hidden" value="<?= /* @noEscape */ $displayPrice ?>"/>
+        <input name="liczbaSztukTowaru<?=  /* @noEscape */$count ?>" readonly="readonly"
+               type="hidden" value="<?= /* @noEscape */ (int)$qty ?>"/>
+        <input name="jednostkaTowaru<?= /* @noEscape */ $count ?>" readonly="readonly" type="hidden" value="szt."/>
     <?php endforeach; ?>
 
     <?php if ($order->getShippingInclTax() > 0): ?>
@@ -70,39 +66,39 @@ if (!$order->getId()) {
         $totalQty++;
         $count++;
         ?>
-        <input name="idTowaru<?= $count ?>" readonly="readonly" type="hidden" value="KosztPrzesylki">
-        <input name="nazwaTowaru<?= $count ?>" readonly="readonly" type="hidden" value="Koszt Przesyłki">
-        <input name="wartoscTowaru<?= $count ?>"
+        <input name="idTowaru<?= /* @noEscape */ $count ?>" readonly="readonly" type="hidden" value="KosztPrzesylki">
+        <input name="nazwaTowaru<?= /* @noEscape */ $count ?>" readonly="readonly" type="hidden" value="Koszt Przesyłki">
+        <input name="wartoscTowaru<?= /* @noEscape */ $count ?>"
                readonly="readonly"
                type="hidden"
-               value="<?= $orderModel->getPricePLN($order->getShippingInclTax(), $currencyCode) ?>"
+               value="<?= /* @noEscape */  $orderModel->getPricePLN($order->getShippingInclTax(), $currencyCode) ?>"
         />
-        <input name="liczbaSztukTowaru<?= $count ?>" readonly="readonly" type="hidden" value="1">
-        <input name="jednostkaTowaru<?= $count ?>" readonly="readonly" type="hidden" value="sztuki">
+        <input name="liczbaSztukTowaru<?= /* @noEscape */ $count ?>" readonly="readonly" type="hidden" value="1">
+        <input name="jednostkaTowaru<?= /* @noEscape */ $count ?>" readonly="readonly" type="hidden" value="sztuki">
     <?php endif ?>
 
-    <input type="hidden" name="wartoscTowarow" value="<?= $orderModel->getPricePLN($totalValue, $currencyCode) ?>">
-    <input type="hidden" name="liczbaSztukTowarow" value="<?= $totalQty ?>">
-    <input type="hidden" name="numerSklepu" value="<?= $ratesModel->getShopId($order->getAllItems()) ?>">
+    <input type="hidden" name="wartoscTowarow" value="<?= /* @noEscape */  $orderModel->getPricePLN($totalValue, $currencyCode) ?>">
+    <input type="hidden" name="liczbaSztukTowarow" value="<?= /* @noEscape */  $totalQty ?>">
+    <input type="hidden" name="numerSklepu" value="<?= /* @noEscape */  $ratesModel->getShopId($order->getAllItems()) ?>">
     <input type="hidden" name="typProduktu" value="0">
-    <input type="hidden" name="sposobDostarczeniaTowaru" value="<?= ($order->getShippingDescription() != '' ? $order->getShippingDescription() : 'Przesyłka kurierska') ?>">
-    <input type="hidden" name="nrZamowieniaSklep" value="<?= $order->getIncrementId() ?>">
-    <input type="hidden" name="imie" value="<?= $billingAddress->getFirstname() ?>">
-    <input type="hidden" name="nazwisko" value="<?= $billingAddress->getLastname() ?>">
-    <input type="hidden" name="email" value="<?= $billingAddress->getEmail() ?>">
-    <input type="hidden" name="telKontakt" value="<?= $billingAddress->getTelephone() ?>">
-    <input type="hidden" name="ulica" value="<?= implode(' ', $billingAddress->getStreet()) ?>">
-    <input type="hidden" name="miasto" value="<?= $billingAddress->getCity() ?>">
-    <input type="hidden" name="kodPocz" value="<?= $billingAddress->getPostcode() ?>">
+    <input type="hidden" name="sposobDostarczeniaTowaru" value="<?= /* @noEscape */  $order->getShippingDescription() ?>">
+    <input type="hidden" name="nrZamowieniaSklep" value="<?= /* @noEscape */  $order->getIncrementId() ?>">
+    <input type="hidden" name="imie" value="<?= /* @noEscape */  $billingAddress->getFirstname() ?>">
+    <input type="hidden" name="nazwisko" value="<?= /* @noEscape */  $billingAddress->getLastname() ?>">
+    <input type="hidden" name="email" value="<?= /* @noEscape */  $billingAddress->getEmail() ?>">
+    <input type="hidden" name="telKontakt" value="<?= /* @noEscape */  $billingAddress->getTelephone() ?>">
+    <input type="hidden" name="ulica" value="<?= /* @noEscape */  implode(' ', $billingAddress->getStreet()) ?>">
+    <input type="hidden" name="miasto" value="<?= /* @noEscape */  $billingAddress->getCity() ?>">
+    <input type="hidden" name="kodPocz" value="<?= /* @noEscape */ $billingAddress->getPostcode() ?>">
     <input type="hidden" name="char" value="UTF">
     <input type="hidden" name="wniosekZapisany"
-           value="<?= $orderModel->getSaveOrderPageUrl([
+           value="<?= /* @noEscape */  $orderModel->getSaveOrderPageUrl([
                'order' => $order->getId(),
                'wniosek' => 'przyjety',
            ]) ?>id_zamowienia/"
     />
     <input type="hidden" name="wniosekAnulowany"
-           value="<?= $orderModel->getSaveOrderPageUrl([
+           value="<?= /* @noEscape */  $orderModel->getSaveOrderPageUrl([
                'order' => $order->getId(),
                'wniosek' => 'odrzucony',
            ]) ?>id_zamowienia/"

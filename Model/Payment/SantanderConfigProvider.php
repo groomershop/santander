@@ -15,8 +15,6 @@ use Magento\Framework\Exception\NoSuchEntityException;
 
 class SantanderConfigProvider implements ConfigProviderInterface
 {
-    public const SANTANDER_AGREEMENT_ID = 'santander_configuration/agreement_configuration/santander_agreement';
-
     /**
      * @var UrlInterface
      */
@@ -48,7 +46,6 @@ class SantanderConfigProvider implements ConfigProviderInterface
     public function getConfig()
     {
         $config['santander']['redirect'] = $this->urlBuilder->getUrl('santander/eraty/redirect');
-        $config['santander']['agreement_id'] = $this->dataHelper->getConfigValue(self::SANTANDER_AGREEMENT_ID);
 
         return $config;
     }

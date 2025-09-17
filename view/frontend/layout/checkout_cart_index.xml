@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
-    @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+/**
+  * @copyright Copyright (c) 2024 Aurora Creation Sp. z o.o. (https://auroracreation.com)
+ */
 -->
-
-<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceContainer name="checkout.cart.totals.container">
-			<container name="santander" htmlTag="div" htmlClass="product-info-price-box" after="-">
-                <block name="installment_block" template="Aurora_Santander::cart/installment.phtml">
+            <container name="santander" htmlTag="div" htmlClass="product-info-price-box" after="-">
+                <block class="Magento\Framework\View\Element\Template"
+                       name="installment_block" template="Aurora_Santander::cart/installment.phtml">
                     <arguments>
                         <argument name="installment" xsi:type="object">Aurora\Santander\ViewModel\Installment</argument>
                         <argument name="rates" xsi:type="object">Aurora\Santander\ViewModel\Rates</argument>
                     </arguments>
                 </block>
             </container>
-		</referenceContainer>
+        </referenceContainer>
     </body>
 </page>

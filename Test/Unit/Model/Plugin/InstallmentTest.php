@@ -49,6 +49,11 @@ class InstallmentTest extends TestCase
     public MockObject|AuroraInstallment $plugin;
 
     /**
+     * @var MockObject|BlockConfigurable
+     */
+    public MockObject|BlockConfigurable $result;
+
+    /**
      * @inheritDoc
      */
     public function setUp(): void

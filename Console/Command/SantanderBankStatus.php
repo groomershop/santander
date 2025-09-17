@@ -1,9 +1,7 @@
 <?php
-
 /**
- * @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2024 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
-
 declare(strict_types=1);
 
 namespace Aurora\Santander\Console\Command;
@@ -13,6 +11,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Aurora\Santander\Service\ProcessOrders;
+use Magento\Framework\Console\Cli;
 
 class SantanderBankStatus extends Command
 {
@@ -48,14 +47,16 @@ class SantanderBankStatus extends Command
      * @param InputInterface  $input
      * @param OutputInterface $output
      *
-     * @return void
+     * @return int
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         try {
             $this->processOrders->updateStatusAll($output);
+            return Cli::RETURN_SUCCESS;
         } catch (Exception $exception) {
             $output->writeln($exception->getMessage());
+            return Cli::RETURN_FAILURE;
         }
     }
 }

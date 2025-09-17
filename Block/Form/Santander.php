@@ -71,6 +71,11 @@ class Santander extends AbstractInstruction
         $price = $item->getPriceInclTax();
         $qty = $item->getQtyOrdered();
         $discount = $item->getDiscountAmount() ?? 0;
+        if ($parentItem = $item->getParentItem()) {
+            $price = $parentItem->getPriceInclTax();
+            $discount = $parentItem->getDiscountAmount() ?? 0;
+            $qty = $parentItem->getQtyOrdered();
+        }
 
         return ($price * $qty) - $discount;
     }

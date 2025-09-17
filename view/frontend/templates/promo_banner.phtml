@@ -1,23 +1,27 @@
 <?php
 /**
- * @copyright Copyright (c) 2020 Aurora Creation Sp. z o.o. (https://auroracreation.com)
+ * @copyright Copyright (c) 2024 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
+use Magento\Framework\Escaper;
+
+/** @var Escaper $escaper */
 ?>
 
 <div class="block_content">
     <?php if ($block->getLpLink() && $block->getIsBanner()): ?>
-        <a title="<?= $block->escapeHtml(__('See how to buy in installments')); ?>" href="<?= $block->getLpUrl(); ?>" target="_blank">
-            <img 
-                src="<?= $this->getViewFileUrl('Aurora_Santander::images/banner_eraty.jpg') ?>" 
-                alt="<?= $block->escapeHtml(__('See how to buy in installments')); ?>">
+        <a title="<?= $escaper->escapeHtml(__('See how to buy in installments')); ?>"
+           href="<?= $escaper->escapeUrl($block->getLpUrl()) ?>" target="_blank">
+            <img
+                src="<?= $escaper->escapeUrl($block->getViewFileUrl('Aurora_Santander::images/banner_eraty.jpg')) ?>"
+                alt="<?= $escaper->escapeHtml(__('See how to buy in installments')); ?>">
         </a>
     <?php elseif (!$block->getLpLink() && $block->getIsBanner()): ?>
-        <img 
-            src="<?= $this->getViewFileUrl('Aurora_Santander::images/banner_eraty.jpg') ?>" 
-            alt="<?= $block->escapeHtml(__('See how to buy in installments')); ?>">
-    <?php elseif ($block->getLpLink() && !$block->getIsBanner()): ?> 
-        <a href="<?= $block->getLpUrl(); ?>" target="_blank">
-           <?= __('How to buy with eRata?'); ?> 
+        <img
+            src="<?= $escaper->escapeUrl($block->getViewFileUrl('Aurora_Santander::images/banner_eraty.jpg')) ?>"
+            alt="<?= $escaper->escapeHtml(__('See how to buy in installments')); ?>">
+    <?php elseif ($block->getLpLink() && !$block->getIsBanner()): ?>
+        <a href="<?= $escaper->escapeUrl($block->getLpUrl()) ?>" target="_blank">
+           <?= $escaper->escapeHtml(__('How to buy with eRata?')) ?>
         </a>
     <?php endif; ?>
 </div>

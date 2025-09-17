@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace Aurora\Santander\Test\Unit\Block;
 
 use Aurora\Santander\Block\Form\Santander;
+use Aurora\Santander\Helper\ItemValidator;
 use Magento\Framework\View\Element\Template\Context;
 use PHPUnit\Framework\MockObject\MockObject;
 use Magento\Sales\Model\Order\Item;
@@ -30,6 +31,11 @@ class SantanderTest extends TestCase
      * @var MockObject|Context
      */
     private MockObject|Context $mockContext;
+
+    /**
+     * @var MockObject|ItemValidator
+     */
+    private MockObject|ItemValidator $mockItemValidator;
 
     /**
      * @var array|array[]
@@ -62,7 +68,12 @@ class SantanderTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->testClass = new Santander($this->mockContext);
+        $this->mockItemValidator = $this
+            ->getMockBuilder(ItemValidator::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->testClass = new Santander($this->mockItemValidator, $this->mockContext);
     }
 
     public function testCalculateItemPrice(): void

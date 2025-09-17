@@ -1,8 +1,8 @@
 variables:
   DOCKER_DRIVER: overlay2
-  PHP_VERSION: "8.1"
-  COMPOSER_VERSION: "2.1.11"
-  MAGENTO_VERSION: "2.4.5"
+  PHP_VERSION: "8.2"
+  COMPOSER_VERSION: "2.7.7"
+  MAGENTO_VERSION: "2.4.7"
   MODULE_NAME: Santander
 
 stages:
@@ -23,6 +23,7 @@ install_magento:
     - echo $composer_auth > /root/.composer/auth.json
   script:
     - composer create-project --repository=https://repo.magento.com/ magento/project-community-edition:$MAGENTO_VERSION . --no-progress
+    - composer config --no-plugins allow-plugins.phpstan/extension-installer true
     - composer require --dev bitexpert/phpstan-magento
     - composer require --dev phpstan/extension-installer
     - mkdir -p ./app/code/Aurora/$MODULE_NAME

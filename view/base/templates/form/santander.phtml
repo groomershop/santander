@@ -1,12 +1,12 @@
 <?php
 /**
- * @copyright Copyright (c) 2023 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2024 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
-?>
 
-<?php
 use Aurora\Santander\Block\Form\Santander;
-use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Escaper;
+
+/** @var Escaper $escaper */
 ?>
 
 <?php
@@ -25,8 +25,8 @@ if (!$instructions) {
 $code = $block->getMethodCode();
 ?>
 
-<div class="items <?= $block->escapeHtml($code) ?> instructions agreement checkout-agreement-item-content"
-     id="payment_form_<?= $block->escapeHtml($code) ?>"
+<div class="items <?= $escaper->escapeHtml($code) ?> instructions agreement checkout-agreement-item-content"
+     id="payment_form_<?= $escaper->escapeHtml($code) ?>"
      style="display: none;">
-    <?= /* @noEscape */ nl2br($block->escapeHtml($instructions)) ?>
+    <?= /* @noEscape */ nl2br($escaper->escapeHtml($instructions)) ?>
 </div>

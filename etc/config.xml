@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
-    @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+/**
+  * @copyright Copyright (c) 2024 Aurora Creation Sp. z o.o. (https://auroracreation.com)
+ */
 -->
-
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation="../../Store/etc/config.xsd">
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
     <default>
         <payment>
             <eraty_santander>
@@ -16,7 +16,19 @@
                 <payment_action>true</payment_action>
                 <model>Aurora\Santander\Model\Santander</model>
                 <group>santander</group>
+                <min_order_total>100</min_order_total>
+                <max_order_total>50000</max_order_total>
             </eraty_santander>
         </payment>
+        <santander_configuration>
+            <calc_button_configuration>
+                <min_product_price>100</min_product_price>
+                <max_product_price>50000</max_product_price>
+            </calc_button_configuration>
+            <display_configuration>
+                <santander_banner>1</santander_banner>
+                <santander_landlink>1</santander_landlink>
+            </display_configuration>
+        </santander_configuration>
     </default>
 </config>

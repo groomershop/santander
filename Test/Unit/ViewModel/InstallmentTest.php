@@ -1,13 +1,12 @@
 <?php
-
 /**
- * @copyright Copyright (c) 2022 Aurora Creation Sp. z o.o. (http://auroracreation.com)
+ * @copyright Copyright (c) 2024 Aurora Creation Sp. z o.o. (http://auroracreation.com)
  */
-
 declare(strict_types=1);
 
 namespace Aurora\Santander\Test\Unit\ViewModel;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
 use PHPUnit\Framework\TestCase;
 use Magento\Store\Model\Store;
@@ -27,8 +26,63 @@ use Magento\Eav\Model\Entity\Attribute\Frontend\AbstractFrontend;
 use Aurora\Santander\ViewModel\Installment;
 use Aurora\Santander\Helper\Data as AuroraData;
 
+/**
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings(PHPMD.TooManyFields)
+ */
 class InstallmentTest extends TestCase
 {
+    /** @var MockObject|Registry|(Registry&MockObject) */
+    public MockObject|Registry $registry;
+
+    /** @var MockObject|Data */
+    public MockObject|Data $priceHelper;
+
+    /** @var MockObject|AuroraData */
+    public MockObject|AuroraData $dataHelper;
+
+    /** @var MockObject|Cart */
+    public MockObject|Cart $cart;
+
+    /** @var MockObject|ProductRepositoryInterface */
+    public MockObject|ProductRepositoryInterface $productRepository;
+
+    /** @var MockObject|CurrencyFactory */
+    public MockObject|CurrencyFactory $currencyFactory;
+
+    /** @var MockObject|StoreManagerInterface */
+    public MockObject|StoreManagerInterface $storeManager;
+
+    /** @var MockObject|LoggerInterface */
+    public MockObject|LoggerInterface $logger;
+
+    /** @var MockObject|Product */
+    public MockObject|Product $product;
+
+    /** @var MockObject|Store */
+    public MockObject|Store $store;
+
+    /** @var MockObject|Currency */
+    public MockObject|Currency $currency;
+
+    /** @var MockObject|Quote */
+    public MockObject|Quote $quote;
+
+    /** @var MockObject|AbstractDb */
+    public MockObject|AbstractDb $abstractDb;
+
+    /** @var MockObject|AbstractAttribute */
+    public MockObject|AbstractAttribute $attr;
+
+    /** @var MockObject|AbstractFrontend */
+    public MockObject|AbstractFrontend $frontendAttr;
+
+    /** @var MockObject|Address */
+    public MockObject|Address $address;
+
+    /** @var Installment */
+    public MockObject|Installment $installment;
+
     /**
      * @return void
      */
